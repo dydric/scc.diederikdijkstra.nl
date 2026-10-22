@@ -165,7 +165,10 @@
 	@keyframes scc-blink { 50% { opacity: 0; } }
 
 	/* De scoretegel: Space Mono Bold, wit op een donker vlak. De maat volgt
-	   de ouder; de regel en padding houden de tegel op de 8px-maatstappen. */
+	   de ouder; de regel en padding houden de tegel op de 8px-maatstappen.
+	   Bij regelhoogte 1em ligt de basislijn van Space Mono op 0,88em, dus
+	   staan de cijfers (0,7em hoog) 0,03em te laag. De padding schuift ze
+	   terug, zodat de lucht boven en onder gelijk is; de hoogte blijft 1,28em. */
 	.scc-flap {
 		@apply relative inline-grid place-items-center whitespace-nowrap rounded-[3px] font-data;
 		font-weight: 700;
@@ -173,7 +176,7 @@
 		color: #fff;
 		line-height: 1em;
 		letter-spacing: 0;
-		padding: 0.14em 0.2em;
+		padding: 0.11em 0.2em 0.17em;
 		background: var(--flap-bg);
 		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 0 rgb(0 0 0 / 0.6);
 	}
@@ -737,8 +740,11 @@
 	/* Eén speelhelft van bovenaf: 73 bij 56 meter (68 plus uitloop; het doel
 	   met 2,5 meter uitloop onderaan, de middellijn één meter onder de
 	   bovenrand). Eén meter is 1/73 van de breedte. In de tabelkaart staat
-	   het veld in een kader tussen de kop en de basis. */
-	.scc-ratings-field { @apply px-5 pb-5; }
+	   het veld tussen de kop en de basis, tegen de randen van de kaart aan. */
+	.scc-ratings-field {
+		box-shadow: inset 0 1px 0 var(--line);
+		.scc-pitch { @apply rounded-none; box-shadow: none; }
+	}
 	.scc-pitch {
 		@apply relative w-full overflow-hidden rounded-[3px];
 		aspect-ratio: 73 / 56;
@@ -909,7 +915,6 @@
 		.scc-node-score { @apply h-4 text-[11px] leading-4; }
 	}
 	@media (width < 40rem) {
-		.scc-ratings-field { @apply px-3 pb-3; }
 		.scc-node-tile { @apply min-w-7; }
 		.scc-node-number { @apply px-1 pt-0.5 text-[14px] leading-4; }
 		.scc-node-score { @apply h-3 text-[9px] leading-3; }

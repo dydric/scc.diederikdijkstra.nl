@@ -4,36 +4,32 @@ Opgezet op 19 oktober 2026 uit de door de gebruiker aangeleverde tekst
 over Cambuurs promotieseizoen. Er zijn eenvoudige
 overzichts- en wedstrijdpagina's om de collectie te bekijken.
 
-## Opstelling als 3D-veld (22 oktober 2026)
+## Opstelling op het heroveld, in de tabelkaart (22 oktober 2026)
 
 De speelhelften gebruiken hetzelfde procedurele WebGL-gras als de hero
-(`js/modules/scc/turf.js`). De shader kent nu een algemene uitsnede
-(`basis` en `origin`, schermcoördinaten naar veldmeters); een paneel met
-`data-turf-view="half"` tekent een staande helft van 73 bij 65 meter: doel
-met 2,5 meter uitloop onder, middellijn tien meter onder de bovenrand.
-De lampen hangen dan achter de bovenrand; licht (avond/middag) volgt
-`data-kickoff`, dat `pitchHalf(team, kickoff)` uit de fixture meekrijgt.
-De opkomst van het licht speelt eenmaal per tabsessie per kant
-(`opstelling-home`, `opstelling-away`). Voor een gekanteld paneel meet de
-module met `offsetWidth`/`offsetHeight`, niet met de getransformeerde box.
+(`js/modules/scc/turf.js`). De shader kent een algemene uitsnede (`basis`
+en `origin`, schermcoördinaten naar veldmeters); een paneel met
+`data-turf-view="half"` tekent een staande helft van 73 bij 56 meter van
+bovenaf: doel met 2,5 meter uitloop onder, middellijn één meter onder de
+bovenrand. De lampen hangen dan achter de bovenrand; licht (avond/middag)
+volgt `data-kickoff` uit de fixture. De opkomst van het licht speelt
+eenmaal per tabsessie per kant (`opstelling-home`, `opstelling-away`).
 
-Opbouw (`ui.njk`, `pitchHalf` en `pitchPlayer`; opmaak in `scc-ui.css`):
-`.scc-pitch` (perspectief) met `.scc-pitch-plane`, gekanteld met `--tilt`
-(46°, onder 640px 34°). Daarin `.scc-pitch-ground` met het canvas en de
-CSS-lijnen als reserve zonder WebGL, een grondplak als voorkant
-(`.scc-pitch-edge`), een staand doel met net en de spelers. Elke speler
-(`.scc-node-stand`) draait even ver terug en staat dus rechtop naar de
-kijker: een matzwarte ledtegel zoals het scorebord in de hero, met het
-rugnummer (Cambuur geel, tegenstander warmwit) en het rapportcijfer als
-strook in zijn bandkleur. Rechtsboven als badge: een bal per goal,
-kaartjes, en ↓ met minuut bij een wissel. Op het gras een contactschaduw
-en een lichtvlek in de ploegkleur. Geen namen op het veld; die staan in
-title, aria-label en de tabel.
+Het veld staat in de tabelkaart: `ratings(team, compact, field, kickoff)`
+zet met `field` de speelhelft (`pitchField`) randloos tussen de kop
+(ploeg, formatie, trainer, gemiddelde) en de rij Basis. `pitchHalf` is de
+losse variant met naam en formatie voor de stijlpagina. Een eerste versie
+als gekanteld 3D-diorama is op verzoek teruggedraaid.
 
-Bij in beeld (`data-reveal`) klappen de tegels vanaf het gras omhoog,
-620ms met lichte overshoot, vertraagd van keeper naar spits; hover tilt de
-tegel 6px op met een gloed. Met `prefers-reduced-motion` staat alles direct.
-Bekeken in headless Chrome op 1440 en 390px (AZ, Telstar).
+Elke speler is een matzwarte ledtegel zoals het scorebord in de hero, met
+het rugnummer (Cambuur geel, tegenstander warmwit) en het rapportcijfer als
+strook in zijn bandkleur. Rechtsboven als badge: een bal per goal, kaartjes,
+en een rode ↓ met de minuut in wit (11px, op een telefoon 10px) bij een
+wissel. Een doelpuntmaker (`data-goal`) krijgt een witte lichtrand met
+gloed, grotere ballen en een fellere witte lichtvlek op het gras. Geen namen
+op het veld; die staan in title, aria-label en de tabel. Bij in beeld
+(`data-reveal`) springen de tegels op (620ms, lichte overshoot, van keeper
+naar spits); met `prefers-reduced-motion` staat alles direct.
 
 ## Eigen doelpunten in het wedstrijdverloop (22 oktober 2026)
 
@@ -296,7 +292,8 @@ prompt (`>`) en een knipperende cursor (`.scc-term-cursor`, stil bij
 `prefers-reduced-motion`). Sectiekoppen krijgen dezelfde prompt.
 Klaptegels zijn altijd effen (geen naad): `flap(text)` / `.scc-flap`
 is één tegel met een wit Space Mono-cijfer (de grootte volgt de
-`font-size` van de ouder; de JS kan het getal laten rollen),
+`font-size` van de ouder; de JS kan het getal laten rollen; de padding is
+0,11em boven en 0,17em onder, zodat het cijfer optisch gecentreerd staat),
 `flapText(text)` / `.scc-flaps` zet elk teken in een eigen tegel met
 Space Mono. Kleur hoort naast de tegel (streep, naam,
 label), niet in de tegel. `scc-upcoming.js` bouwt de
@@ -372,10 +369,11 @@ profiterende ploeg volgt. De statische weergave heeft geen
 afspeelfunctie. De doelpuntenlijn met makers onder de eindstand blijft staan.
 Dan vijf kerncijfers
 als tegels. Dan de Samenvatting (de video) over de volle breedte. De sectie Doelpunten is vervallen (de `goals`-macro blijft in `ui.njk` en op de stijlproeven). Over de volle
-breedte Opstellingen: per ploeg een rechtopstaande speelhelft met naam en formatie
-erboven en de tabel eronder; vanaf lg staan de twee ploegen naast elkaar, eronder
-de legenda, onder lg is de volgorde veld, tabel, veld, tabel, legenda. Daaronder Cijfers over de volle breedte en Kaarten en VAR als lijst. Het veld is een
-gekanteld 3D-diorama (zie [Opstelling als 3D-veld](#opstelling-als-3d-veld-22-oktober-2026)):
+breedte Opstellingen: per ploeg een tabelkaart met de speelhelft randloos
+tussen de kop en de basis; vanaf lg staan de twee ploegen naast elkaar, thuis
+links en uit rechts zoals in de hero, eronder de legenda; onder lg staan de
+kaarten onder elkaar met Cambuur bovenaan. Daaronder Cijfers over de volle breedte en Kaarten en VAR als lijst. Het veld is een
+speelhelft van bovenaf in de tabelkaart (zie [Opstelling op het heroveld](#opstelling-op-het-heroveld-in-de-tabelkaart-22-oktober-2026)):
 het eigen doel vooraan, de middellijn met middencirkel achteraan; beide
 ploegen vallen van de kijker af aan met de linkerflank links. Spelers staan
 als ledtegel rechtop met rugnummer, rapportcijfer en status. De tabel toont de rapportcijfers met trainer en

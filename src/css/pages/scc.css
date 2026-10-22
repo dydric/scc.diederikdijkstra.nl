@@ -377,6 +377,10 @@
   .scc-lineup-teams { @apply grid items-start gap-6 lg:grid-cols-2 lg:gap-8; }
   .scc-lineup-teams > * { @apply min-w-0; }
   .scc-lineup-team { @apply grid content-start gap-4; }
+  /* Vanaf lg thuis links en uit rechts, zoals in de hero en bij Cijfers;
+     daaronder blijft Cambuur bovenaan. */
+  .scc-lineup-team[data-side="home"] { @apply lg:order-1; }
+  .scc-lineup-team[data-side="away"] { @apply lg:order-2; }
 
   /* Vorige en volgende: twee kaarten met links een streep in de
      uitslagkleur. Alles links uitgelijnd (justify-items-start), zodat de

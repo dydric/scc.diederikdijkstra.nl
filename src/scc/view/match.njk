@@ -71,7 +71,7 @@ edges: false
 			<div class="scc-lineup">
 				<div class="scc-lineup-teams">
 					{% for team in [cambuur, opponent] %}{% if team %}
-					<div class="scc-lineup-team">
+					<div class="scc-lineup-team" data-side="{{ team.side }}">
 						{% if not team.complete %}{{ lineupList(team) }}{% endif %}
 						{{ ratings(team, false, true, data.match.fixture.date if data.match and data.match.fixture) }}
 					</div>

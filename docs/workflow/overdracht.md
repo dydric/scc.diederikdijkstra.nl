@@ -1,5 +1,15 @@
 # Overdracht
 
+## Opstellingen thuis links, uit rechts (22 oktober 2026)
+
+Vanaf lg staan de opstellingskaarten (veld en rapportcijfers) in de
+volgorde van de hero: thuis links, uit rechts, net als Cijfers al deed.
+`.scc-lineup-team` kreeg `data-side`; `scc.css` zet de volgorde met
+`order`. Onder lg blijft Cambuur bovenaan.
+
+Controle: `npm run check:build`, bekeken op 1440px bij een uitwedstrijd.
+Geen commit, push of deploy.
+
 ## GitHub-koppeling (22 oktober 2026)
 
 De bestaande lege Git-initialisatie is gekoppeld aan
@@ -8,23 +18,23 @@ De bestaande lege Git-initialisatie is gekoppeld aan
 nu dezelfde naam. De repository was bij de controle op GitHub leeg.
 `.env`, lokale buildbestanden en afhankelijkheden blijven buiten Git.
 
-## Opstellingen als 3D-veld met ledtegels (22 oktober 2026)
+## Opstelling in de tabelkaart op het heroveld (22 oktober 2026)
 
-De speelhelften liggen nu op hetzelfde WebGL-gras als de hero, als
-gekanteld diorama met grondplak en staand doel. Spelers zijn rechtopstaande
-ledtegels met rugnummer, rapportcijfer en statusbadge (goals, kaarten,
-wissel met minuut); ze klappen bij in beeld komen omhoog. `turf.js` kreeg
-een algemene uitsnede (`basis`/`origin`) en `data-turf-view="half"`; de
-hero rekent hetzelfde als voorheen. Zie
-[wedstrijden.md](../architectuur/wedstrijden.md#opstelling-als-3d-veld-22-oktober-2026).
-Nieuwe animatie (opkomst en hover van de tegels) is nieuw, geen wijziging
-van bestaand tempo; graag beoordelen.
+De speelhelften liggen op hetzelfde WebGL-gras als de hero, van bovenaf,
+randloos binnen de tabelkaart: onder de kop (ploeg, formatie, trainer,
+gemiddelde) en boven Basis. De losse veldkop boven de kaart is vervallen.
+Spelers zijn ledtegels met rugnummer, rapportcijfer en statusbadge; de
+wisseltijd staat nu wit op zwart in 11px, doelpuntmakers hebben een witte
+lichtrand en een fellere lichtvlek. De eerdere 3D-kanteling is op verzoek
+teruggedraaid. `turf.js` kreeg een algemene uitsnede (`basis`/`origin`) en
+`data-turf-view="half"`; de hero rekent hetzelfde als voorheen. Zie
+[wedstrijden.md](../architectuur/wedstrijden.md#opstelling-op-het-heroveld-in-de-tabelkaart-22-oktober-2026).
+De opkomst van de tegels (620ms, overshoot) is nieuw; graag beoordelen.
 
 Controle: `npm test` 41/41, development- en productiebuild geslaagd;
-opstellingen (AZ, Telstar) op 1440 en 390px en de hero bekeken in
-headless Chrome. Let op: een screenshot als PNG met de hero in beeld blijft
-in headless Chrome hangen; JPEG met `optimizeForSpeed` werkt. Geen commit,
-push of deploy.
+opstellingen op 1440 en 390px en de hero bekeken in headless Chrome. Let
+op: een PNG-screenshot met de hero in beeld blijft in headless Chrome
+hangen; JPEG met `optimizeForSpeed` werkt. Geen commit, push of deploy.
 
 ## Eigen doelpunt kleurt wedstrijdverloop correct (22 oktober 2026)
 
@@ -66,6 +76,13 @@ veld komt in 300ms op na de eerste render. `pitch.svg` staat nu in
 Controle: development- en productiebuild geslaagd; home, detail (avond en
 middag) en proef bekeken in headless Chrome op 1440 en 390px, zonder
 horizontale overflow. Geen commit, push of deploy.
+
+## Scorecijfers verticaal gecentreerd (22 oktober 2026)
+
+In `.scc-flap` stonden de cijfers 0,03em te laag: bij regelhoogte 1em ligt
+de basislijn van Space Mono Bold op 0,88em. De padding is nu 0,11em boven en
+0,17em onder (was 0,14em rondom); de tegelhoogte blijft 1,28em. Controle:
+`npm run check:build` geslaagd.
 
 ## Lichtmoment op aftraptijd, scorebord en timeline (22 oktober 2026)
 
