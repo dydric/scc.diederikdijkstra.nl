@@ -1,0 +1,33 @@
+/* Het raster: altijd zichtbaar, op elke pagina. Kolommen van 32px vanaf de
+   rand van de pagina (--page-inset, theme/layout.css), naar buiten
+   doorlopend tot de rand van het scherm; daarin blokjes van 8px, en een
+   rijlijn om de 32px. De paginaranden in het accent (--grid-accent,
+   theme/colors.css). Op een telefoon (S 320 of smaller) elke tweede
+   kolomlijn.
+
+   Het raster zelf tekent js/modules/site/grid.js: één tegel op
+   device-pixels, als achtergrond van <body>. Zo is elke lijn precies één
+   device-pixel, ook bij zoom, en staat hij op een hele pixel. Zonder
+   JavaScript is er geen raster.
+
+   De balk bovenaan (.grid-bar, layouts/base.njk): 8px, sticky, in
+   --grid-bar-bg. Sticky met een achtergrondkleur: Safari (iOS 26) neemt
+   die kleur over in de strook bij de notch, dus geen naad. Eronder hangt
+   de liniaal (.grid-ruler): een streepje op elke kolomlijn, langer om de
+   64px, zonder aparte markeringen bij de paginaranden. Alles in het accent;
+   de balk ligt er als strip overheen. */
+@layer base {
+	.grid-bar {
+		@apply pointer-events-none sticky top-0 z-45 h-(--grid-bar) bg-(--grid-bar-bg);
+	}
+
+	.grid-ruler {
+		@apply absolute inset-x-0 top-full h-2 bg-no-repeat bg-(image:--grid-ruler) bg-size-(--grid-ruler-size);
+	}
+
+	/* Meet de kolom zoals de CSS hem rekent, zodat het raster precies op
+	   dezelfde pixel begint. */
+	.grid-probe {
+		@apply invisible absolute top-0 h-0 ms-(--page-inset) w-(--container-page);
+	}
+}

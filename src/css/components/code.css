@@ -1,0 +1,73 @@
+/* Gedeelde code-opmaak voor macro's, losse HTML en Markdown.
+ * Alleen achtergronden krijgen ruis; tekst en Copy blijven scherp.
+ * De system-* classes blijven beschikbaar voor bestaande voorbeelden. */
+@reference "../tw/tw.css";
+
+@layer components {
+	:is(.system-code, .system-copy-item, .system-source, .system-snippet, .system-snippet-label),
+	:where(.system-body, .content) :where(code):not(:where(pre code, .system-copy-item code, .system-source code)),
+	:where(.system-body, .content) :where(pre):not(:where(.system-snippet pre)) {
+		--code-noise: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22noise%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.8%22%20numOctaves%3D%223%22%20seed%3D%228%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Cpath%20fill%3D%22white%22%20filter%3D%22url%28%23noise%29%22%20opacity%3D%220.48%22%20d%3D%22M0%200h128v128H0z%22%2F%3E%3C%2Fsvg%3E");
+		--code-noise-dark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22noise%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.8%22%20numOctaves%3D%223%22%20seed%3D%228%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Cpath%20fill%3D%22white%22%20filter%3D%22url%28%23noise%29%22%20opacity%3D%220.16%22%20d%3D%22M0%200h128v128H0z%22%2F%3E%3C%2Fsvg%3E");
+		/* Op bijna zwart maakt screen de korrel zichtbaar; de lagere dekking houdt het vlak donker. */
+		@apply bg-[image:var(--code-noise)] bg-size-[128px_128px] bg-blend-multiply dark:bg-[image:var(--code-noise-dark)] dark:bg-blend-screen;
+	}
+
+	.system-copy-item {
+		@apply inline-flex max-w-full items-baseline gap-4 bg-code px-2 font-mono text-sm text-fg;
+
+		code { @apply min-w-0 break-all; }
+	}
+
+	.system-snippets {
+		@apply grid gap-2 text-sm;
+	}
+
+	.system-snippet {
+		@apply flex min-w-0 items-baseline gap-3 bg-code px-4 py-2 text-sm text-fg;
+	}
+
+	.system-snippet-label {
+		@apply font-mono text-xs uppercase shrink-0 bg-code-other px-1 text-black dark:text-white scheme-light-dark;
+
+		&[data-lang="html"] {
+			@apply bg-code-html;
+		}
+
+		&[data-lang="css"] {
+			@apply bg-code-css;
+		}
+
+		&[data-lang="njk"] {
+			@apply bg-code-njk;
+		}
+
+		&[data-lang="md"],
+		&[data-lang="markdown"] {
+			@apply bg-code-md;
+		}
+
+		&[data-lang="js"] {
+			@apply bg-code-js;
+		}
+	}
+
+	.system-snippet-copy {
+		@apply font-mono text-xs uppercase shrink-0 text-fg/60 hover:text-fg;
+	}
+
+	/* Gewone HTML en Markdown volgen dezelfde kleine codevariant.
+	   Code binnen een codeblok krijgt geen tweede vlak of extra padding. */
+	.system-code,
+	:where(.system-body, .content) :where(code):not(:where(pre code, .system-copy-item code, .system-source code)) {
+		@apply inline-block max-w-full bg-code px-2 font-mono text-sm font-normal text-fg break-all;
+	}
+
+	:where(.system-body, .content) :where(pre):not(:where(.system-snippet pre)) {
+		@apply min-w-0 bg-code px-4 py-2 font-mono text-sm text-fg whitespace-pre-wrap wrap-break-word;
+
+		code { @apply bg-transparent p-0; }
+	}
+
+	.system-source { @apply bg-code; }
+}

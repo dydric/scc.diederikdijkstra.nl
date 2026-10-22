@@ -1,0 +1,129 @@
+/* Kleuren. Dark mode via de :root-variabelen. */
+@theme {
+	--color-page: var(--page-bg);
+	--color-fg: var(--fg);
+
+	/* Het accent van het raster (--grid-accent hieronder), ook voor
+	   rasterwaarden: maten en labels die bij het raster horen en niet bij
+	   een element (utilities/grid-value.css). */
+	--color-grid-accent: var(--grid-accent);
+	--color-grid-value: var(--grid-value-bg);
+
+	/* Een melding (de ticker, css/components/ticker.css): rood, altijd,
+	   op zwart (in het donker op wit). Hetzelfde rood als het accent van het raster in het donker. */
+	--color-warn: #e8341c;
+
+	/* Lijnen in het design system (tabellen, voorbeelden): de tekstkleur op
+	   24%. Getekend als inset schaduw, niet als border: een border telt mee
+	   in de hoogte en dan valt het element van het 8px-raster. */
+	--color-rule: var(--rule);
+
+	/* Codeblokken (design system): licht in de lichte modus en donker in
+	   de donkere modus, met de tekstkleur van de pagina. Taallabels hebben een lichte kleur met zwarte tekst en een donkere
+	   kleur met witte tekst; color-scheme kiest de variant. */
+	--color-code: var(--code-bg);
+	--color-code-html: light-dark(#ffb76b, #a65d23);
+	--color-code-css: light-dark(#74c0fc, #2873a6);
+	--color-code-njk: light-dark(#8ce99a, #347b48);
+	--color-code-js: light-dark(#ffe08a, #88702e);
+	--color-code-md: light-dark(#faa2c1, #a84c72);
+	--color-code-other: light-dark(#adb5bd, #626b75);
+
+	/* SC Cambuur, uitslagen en rapportcijfers: de waarden staan in :root
+	   hieronder, zodat ook component-CSS (css/components/scc-ui.css) ze
+	   altijd vindt; Tailwind schrijft alleen gebruikte themavariabelen uit. */
+	--color-scc: var(--scc);
+	--color-scc-ink: var(--scc-ink);
+	--color-scc-blue: var(--scc-blue);
+	--color-opp: var(--opp);
+	--color-opp-ink: var(--opp-ink);
+	--color-scc-red: var(--scc-red);
+	--color-result-winst: var(--result-winst);
+	--color-result-gelijk: var(--result-gelijk);
+	--color-result-verlies: var(--result-verlies);
+	--color-rating-onvoldoende: var(--rating-onvoldoende);
+	--color-rating-krap: var(--rating-krap);
+	--color-rating-voldoende: var(--rating-voldoende);
+	--color-rating-goed: var(--rating-goed);
+	--color-rating-uitblinker: var(--rating-uitblinker);
+}
+
+:root {
+	/* Alleen donker: bijna zwart als een terminal, kaarten (--surface) een
+	   tint lichter, lijnen (--line) als haarlijn. Kleine hoeken. Geen
+	   lichte modus meer; color-scheme dark laat light-dark() en de
+	   formulieren van de browser meedoen. */
+	color-scheme: dark;
+	--page-bg: #0c0c0d;
+	--surface: #151517;
+	--surface-2: #1c1c1f;
+	--fg: #f3f1ec;
+	--line: color-mix(in oklab, var(--fg) 11%, transparent);
+	--line-strong: color-mix(in oklab, var(--fg) 20%, transparent);
+	--radius: 4px;
+	--radius-sm: 2px;
+
+	/* Het klapbord (.scc-flap, components/scc-ui.css): effen tegels met
+	   witte Space Mono. */
+	--flap-bg: #222225;
+
+	/* Scrollbalk (base/scrollbar.css): de balk in de tekstkleur, de strook
+	   in de paginakleur met een lijntje ervoor. */
+	--sb-track-color: var(--page-bg);
+	--sb-thumb-color: var(--fg);
+	--sb-border-color: color-mix(in oklab, var(--fg) 15%, transparent);
+
+	/* Het raster (base/grid.css, js/modules/site/grid.js): de lijnen in de
+	   tekstkleur met een kleine alpha, de paginaranden en de liniaal in het
+	   accent. Het accent is de enige kleur van het raster: licht blauw,
+	   donker rood. De balk bovenaan is een tint lichter (licht) of donkerder
+	   (donker) dan de pagina. */
+	--grid-accent: #ffd31a;
+	--grid-bar-bg: #000;
+
+	/* De ondergrond van een rasterwaarde: een tint van 14% van het accent
+	   op de pagina, dicht, zodat de lijnen erachter wegvallen. */
+	--grid-value-bg: color-mix(in oklab, var(--grid-accent) 14%, var(--page-bg));
+
+	--rule: color-mix(in oklab, var(--fg) 24%, transparent);
+	--code-bg: var(--color-neutral-950);
+
+	/* SC Cambuur: geel en blauw, zoals het shirt. Geel als vlak met blauwe
+	   tekst (het rugnummer), blauw als vlak met gele of witte tekst. In
+	   beide modi hetzelfde; geel nooit als tekstkleur op de lichte pagina. */
+	--scc: #ffd31a;
+	--scc-blue: #1a3dc8;
+	--scc-ink: var(--scc-blue);
+
+	/* De tegenstander: zwart met wit (in het donker omgekeerd), brutalistisch
+	   naast het geel van Cambuur. Geen geel naast rood in data. */
+	--opp: var(--fg);
+	--opp-ink: var(--page-bg);
+
+	/* De schaduw achter panelen en kaders (components/scc-ui.css): 8px
+	   verschoven, de tekstkleur op 12%, zodat het raster erdoor blijft. */
+	--panel-shadow: 0 1px 2px color-mix(in oklab, var(--fg) 6%, transparent);
+	--panel-shadow-small: none;
+
+	/* Rood alleen voor achterstand in het scoreverloop en rode kaarten. */
+	--scc-red: #ff3b4e;
+
+	/* De uitslag vanuit Cambuur: winst fel neongroen, gelijk paars (los van
+	   goed/slecht, en het botst niet met het Cambuurgeel), verlies helder
+	   rood. Op W/G/V, de vorm, de streep van een rij, het verloop en de
+	   status en gloed van de hero; ook voor gunstig en ongunstig
+	   (data-tone pos en neg). */
+	--result-winst: #2bff88;
+	--result-gelijk: #a77bff;
+	--result-verlies: #ff3b4e;
+
+	/* Rapportcijfers (src/lib/scc-match-story.js): vijf banden van rood
+	   via oranje, limoen en neongroen naar blauw. Donkere tekst op oranje,
+	   limoen en groen, wit op rood en blauw. */
+	--rating-onvoldoende: #ff3b4e;
+	--rating-krap: #f5a524;
+	--rating-voldoende: #b5d334;
+	--rating-goed: #2bff88;
+	--rating-uitblinker: #3e63dd;
+}
+

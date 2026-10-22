@@ -1,0 +1,62 @@
+/* .flow regelt verticale ruimte; .content geeft semantische HTML uit
+ * Markdown dezelfde tekstrollen als losse type-* classes. Werking en
+ * de wedstrijdverslagen gebruiken deze regels binnen .content. */
+@layer base {
+	.flow > :where(* + *:not(.not-flow)) {
+		@apply mt-(--flow);
+	}
+
+	/* Een kop begint een nieuw onderdeel; de tekst erna hoort dichterbij.
+	   :where houdt de specificiteit laag, zodat utilities blijven werken. */
+	.flow > :where(* + :is(h1, h2, h3, h4, h5, h6):not(.not-flow)) {
+		@apply mt-(--double-flow);
+	}
+
+	.flow > :where(:is(h1, h2, h3, h4, h5, h6) + *:not(.not-flow)) {
+		@apply mt-2;
+	}
+
+	.flow > :where(.type-lead:not(:first-child):not(.not-flow)) {
+		@apply mt-2 @min-[624px]/type:mt-6;
+	}
+
+	.content {
+		@apply type-body;
+
+		/* Koppen kunnen de hele tekstkolom gebruiken; leesregels niet. Ook
+		   de bestaande toepassing als <p class="content"> blijft begrensd. */
+		&:is(p), :where(p, ul, ol, blockquote, pre) {
+			@apply max-w-[65ch];
+		}
+
+		:where(h1) { @apply type-h1; }
+		:where(h2) { @apply type-h2; }
+		:where(h3) { @apply type-h3; }
+		:where(h4) { @apply type-h4; }
+		:where(h5, h6) { @apply type-h5; }
+
+		:where(strong) { @apply font-bold text-fg; }
+
+		:where(ul) { @apply list-disc ps-6; }
+		:where(ol) { @apply list-decimal ps-6; }
+		:where(li + li) { @apply mt-2; }
+		:where(blockquote, li, details) > * + * { @apply mt-2; }
+		:where(blockquote) {
+			@apply ps-4 shadow-[inset_2px_0_0_var(--color-rule)];
+		}
+
+		:where(a) {
+			text-decoration-thickness: var(--underline, max(1px, round(0.09em, 1px)));
+			text-underline-offset: var(--underline-offset, round(0.2em, 1px));
+			@apply text-fg underline decoration-current/40 hover:decoration-current focus-visible:decoration-current;
+		}
+
+		a[href^="http"]:not([href*="diederikdijkstra.nl"])::after {
+			content: "\00a0↗" / "";
+		}
+
+		:where(code, pre, kbd, samp) { @apply font-mono; }
+
+		:where(hr) { @apply h-2 border-0 shadow-[inset_0_1px_0_var(--color-rule)]; }
+	}
+}

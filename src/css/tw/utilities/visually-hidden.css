@@ -1,0 +1,5 @@
+@layer utilities {
+	.visually-hidden {
+		@apply sr-only;
+	}
+}

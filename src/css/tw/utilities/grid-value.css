@@ -1,0 +1,13 @@
+/* Een rasterwaarde: een maat of label dat bij het raster hoort en niet bij
+ * een element (W576, CAP128, een maat op het raster). In het accent, op een
+ * tint ervan (--grid-value-bg, theme/colors.css), in JetBrains Mono op
+ * 11px. Het vlakje is 16px hoog (de regel) en 4px lucht opzij: hele pixels,
+ * dus de letters blijven scherp. Kort, Engels, geen spatie tussen letter en
+ * getal (docs/architectuur/grid.md).
+ *
+ * Gecentreerd (op een lijn, in een balk): de breedte is 7px per teken plus
+ * 8, dus even bij een even aantal tekens (W576). Bij een oneven aantal komt
+ * het midden op een halve pixel: dan niet centreren. */
+@utility grid-value {
+	@apply font-pixel text-pixel-1 bg-grid-value px-1 text-grid-accent;
+}

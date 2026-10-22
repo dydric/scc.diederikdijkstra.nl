@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Waar Tailwind naar classes zoekt: de templates en de JS. */
+@source "../../**/*.{html,js,njk,md}";
+
+/* De gedeelde mono-stijl. De tokens staan per onderwerp in theme/. */
+@import "./theme/colors.css";
+@import "./theme/typography.css";
+@import "./theme/layout.css";
+
+/* Base en utilities van het thema. */
+@import "./base/_.css";
+@import "./utilities/_.css";

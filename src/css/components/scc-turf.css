@@ -1,0 +1,91 @@
+/* Bestand: css/components/scc-turf.css
+ *
+ * Het voetbalveld achter de homehero (.scc-upcoming-main) en het
+ * wedstrijdbord (.scc-board): klasse scc-turf op het paneel zelf, met
+ * data-turf en data-kickoff. js/modules/scc/turf.js tekent het gras in
+ * een canvas. Zonder JS of WebGL staat de SVG-reserve eronder.
+ *
+ * Lagen binnen het paneel: SVG (::before), canvas, verduistering (::after),
+ * daarboven de inhoud. De verduistering ligt vooral achter het tekstblok,
+ * zodat de randen hun licht houden. Proef en vergelijking: /system/grass/.
+ */
+@reference "../tw/tw.css";
+
+@layer components {
+	.scc-turf.scc-upcoming-main, .scc-turf.scc-board {
+		@apply relative isolate overflow-hidden;
+		background: #101b12;
+	}
+	.scc-turf::before, .scc-turf::after, .scc-turf > .scc-turf-canvas {
+		@apply pointer-events-none absolute inset-0 size-full;
+	}
+	/* De SVG-reserve alleen zonder JS of zonder WebGL; anders komt het
+	   WebGL-veld na zijn eerste render op uit de effen grondkleur. */
+	.scc-turf::before {
+		content: ""; z-index: -3;
+		filter: brightness(var(--turf-light, 1));
+	}
+	.scc-turf[data-turf-static]::before {
+		background: url('/assets/scc/pitch.svg') center var(--turf-y, 50%) / var(--turf-size, cover) no-repeat;
+	}
+	@media (scripting: none) {
+		.scc-turf::before { background: url('/assets/scc/pitch.svg') center / cover no-repeat; }
+	}
+	.scc-turf > .scc-turf-canvas {
+		z-index: -2; opacity: 0;
+		filter: brightness(var(--turf-light, 1));
+		transition: opacity 300ms ease-out;
+		&[data-ready] { opacity: 1; }
+	}
+	.scc-turf::after {
+		content: ""; z-index: -1;
+		background:
+			radial-gradient(ellipse 58% 46% at 50% 56%, #050d0894, #050d0855 55%, transparent 100%),
+			radial-gradient(ellipse 120% 110% at 50% 0%, transparent 55%, #050d08a0),
+			linear-gradient(#08100d40, #08100d18 30%, #060c0960);
+	}
+	/* Bij daglicht minder verduistering; de tekstschaduw draagt het contrast. */
+	.scc-turf[data-light="middag"]::after { opacity: .8; }
+	@media (prefers-reduced-motion: reduce) {
+		.scc-turf > .scc-turf-canvas { transition: none; }
+	}
+
+	.scc-turf.scc-board { color: #fff; }
+	.scc-turf :is(.scc-board-when, .scc-board-scorer-meta) { color: #c1c9c1; }
+	.scc-turf :is(.scc-upcoming-stage, .scc-board-main) { text-shadow: 0 2px 16px #0008; }
+	/* Clubnamen: een strakke contactschaduw en een brede, zachte schaduw. */
+	.scc-turf :is(.scc-upcoming-name, .scc-board-name) { text-shadow: 0 1px 1px #000a, 0 .08em .4em #0007; }
+
+	/* De score als stadionscorebord. Matzwart paneel met een fijn ledraster,
+	   warmwitte cijfers met een lichte gloed en glas dat het licht van boven
+	   vangt. De schaduw valt vooral naar onderen: thuis iets naar links, uit
+	   iets naar rechts. Maten in em, zodat alles met de tegel meeschaalt. */
+	.scc-turf .scc-board-score > .scc-flap {
+		--shadow-x: -1;
+		border-radius: .05em;
+		color: #fff7e4;
+		text-shadow: 0 0 .03em #fff4d0aa, 0 0 .14em #ffe9b340;
+		background:
+			radial-gradient(circle, #ffffff09 32%, transparent 36%) center / .045em .045em,
+			linear-gradient(#141614, #0c0d0c);
+		box-shadow: inset 0 0 0 1px #ffffff12, inset 0 .03em .06em #0009, 0 0 0 1px #000c,
+			calc(var(--shadow-x) * .03em) .1em .14em -.05em #0008,
+			calc(var(--shadow-x) * .1em) .3em .36em -.2em #0005;
+		&[data-side="away"] { --shadow-x: 1; }
+		&::after {
+			content: ""; @apply pointer-events-none absolute inset-0;
+			border-radius: inherit;
+			background: linear-gradient(170deg, #ffffff14, #ffffff05 38%, transparent 40%);
+		}
+	}
+
+	/* Gedempt zandkleurig licht voor het streepje en de doelpuntverbindingen. */
+	.scc-turf .scc-board-dash, .scc-turf .scc-upcoming-teams::after {
+		background: #b8ac8d;
+		box-shadow: 0 1px 6px #0004;
+	}
+	.scc-turf .scc-board-link::before { background: #b8ac8d80; }
+
+	/* Acht pixels extra lucht tussen de eindtijd en het scorestreepje. */
+	.scc-turf .scc-board-fulltime { top: calc(50% + 15px); }
+}

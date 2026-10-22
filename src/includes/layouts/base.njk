@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang }}"{% if edges === false %} data-grid-edgeless{% endif %}>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		{#- De titel in de tab volgt de site; meldingen zet tab.js ervoor. #}
+		<title>{{ site.name }}</title>
+		{% if hidepageforseo -%}
+		<meta name="robots" content="noindex, nofollow">
+		{%- else -%}
+		{#- striptags voor het geval een description ooit HTML bevat. #}
+		{%- set metaDescription = description or (site.description | striptags) %}
+		<meta name="description" content="{{ metaDescription }}">
+		<meta name="robots" content="index,follow">
+		<meta name="generator" content="eleventy">
+
+		{#- Voor het delen (Open Graph, en X/Bluesky lezen die ook). #}
+		<meta property="og:type" content="website">
+		<meta property="og:locale" content="nl_NL">
+		<meta property="og:site_name" content="{{ site.name }}">
+		<meta property="og:title" content="{{ title }}">
+		<meta property="og:description" content="{{ metaDescription }}">
+		<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+		<meta name="twitter:card" content="summary">
+		{%- endif %}
+
+		<link rel="canonical" href="{{ site.url }}{{ page.url }}">
+
+		<link rel="preload" href="/assets/fonts/PPNeueMontreal-Variable.woff2" as="font" type="font/woff2" crossorigin>
+
+		<meta name="color-scheme" content="dark">
+		<script>
+			// De pixelmaten (css/tw/theme/typography.css) ronden af op hele
+			// device-pixels, en daarvoor moet de CSS de schaal weten: --dpr.
+			// Browserzoom verandert die (110% is 1.1), dus opnieuw bij elke
+			// wijziging. Inline, zodat de eerste paint al klopt.
+			(function watch() {
+				var dpr = window.devicePixelRatio || 1;
+				document.documentElement.style.setProperty('--dpr', dpr);
+				try {
+					matchMedia('(resolution: ' + dpr + 'dppx)').addEventListener('change', watch, { once: true });
+				} catch (e) {}
+			})();
+		</script>
+		<link rel="stylesheet" href="{% assetUrl "css/tw.css" %}">
+		<script type="module" src="{% assetUrl "js/core.js" %}"></script>
+		{#- De CSS en JS die deze pagina aanmeldt met {% asset %}, waar dan ook in
+		    de templates (src/lib/assets.js, docs/architectuur/assets.md). #}
+		{% getBundle "assets" %}
+	</head>
+	<body class="min-h-screen-dynamic">
+		{#- Het meetraster (base/grid.css, js/modules/site/grid.js) staat alleen
+		    nog op de stijlproeven (grid: true); de SCC-pagina's hebben een
+		    effen ondergrond. #}
+		{% if grid %}<div class="grid-bar" aria-hidden="true"><div class="grid-ruler"></div><div class="grid-probe"></div></div>{% endif %}
+		{{ content | safe }}
+		{#- De dock: de ticker vast onderaan (partials/dock.njk). Tijdelijk uit
+		    met site.dock (data/site.js); dan alleen ruimte onder de pagina. #}
+		{% if site.dock %}{% include "dock.njk" %}{% else %}<div class="h-24" aria-hidden="true"></div>{% endif %}
+	</body>
+</html>

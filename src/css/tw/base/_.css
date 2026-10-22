@@ -1,0 +1,62 @@
+@import "./fonts.css";
+@import "./scrollbar.css";
+@import "./content.css";
+@import "./grid.css";
+
+@layer base {
+	html,
+	body {
+		@apply bg-page text-fg font-sans text-base;
+	}
+
+	/* De container van de pagina: --container-page (theme/layout.css) rekent
+	   met z'n breedte. Smaller dan 300 bestaat niet (de kleinste stap, 256,
+	   met 22px aan weerskanten): daaronder valt rechts een stukje weg
+	   (overflow-x-clip op html), zonder opzij te scrollen, zodat de dock
+	   (fixed, partials/dock.njk) op de kolom blijft. Een container kan in sommige
+	   browsers het kader zijn voor fixed elementen erin; iets dat fixed
+	   aan het scherm moet hangen dus testen, of buiten body zetten (zoals
+	   de lijn van de scrollbalk, base/scrollbar.css). */
+	/* font-normal: ook tekst zonder gewicht krijgt de grade
+	   (theme/typography.css). */
+	body {
+		container: page / inline-size;
+		@apply min-w-75 font-normal;
+	}
+
+	/* Grijswaarden-anti-aliasing zonder de verdikking die macOS standaard
+	   toevoegt: dunnere, scherpere letters, vooral op retina. */
+	html {
+		@apply antialiased overflow-x-clip select-none;
+	}
+
+	/* Geselecteerd kan er nergens iets; alleen invoervelden blijven
+	   bruikbaar. */
+	:is(input, textarea) {
+		@apply select-text;
+	}
+
+	/* Beelden zijn ook niet te slepen (Safari en Chrome; Firefox via
+	   draggable="false" in de HTML). */
+	img {
+		-webkit-user-drag: none;
+	}
+
+	/* Focus op een link: geen ronde ring van de browser, maar een rechte
+	   lijn van 2px in het accent van het raster. Een outline, dus geen extra hoogte. Hij
+	   staat op het raster: het teken van Montreal is 1,2 em hoog, in het
+	   midden van de regel (1lh, een veelvoud van 8, die op een lijn begint);
+	   de offset brengt de buitenkant van de lijn 8px buiten de regel, dus
+	   op de rasterlijnen erboven en eronder, en links en rechts net zoveel
+	   lucht. Hele pixels. */
+	a:focus-visible {
+		@apply outline-2 outline-grid-accent outline-solid outline-offset-[round((1lh_-_1.2em)/2_+_6px,1px)];
+	}
+
+	/* Tailwind v4 zet de cursor op knoppen terug naar de standaard; hier
+	   weer het handje, zoals bij links. */
+	button:not(:disabled),
+	[role="button"]:not([aria-disabled="true"]) {
+		@apply cursor-pointer;
+	}
+}

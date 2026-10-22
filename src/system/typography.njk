@@ -1,0 +1,102 @@
+---
+title: Typography
+typographyContainer: true
+---
+{% from "system/usage.njk" import code, inlineCode with context %}
+
+{# Eén rij per gedeelde tekstrol; de tekstkolom is zelf de schaalcontainer. #}
+<section aria-label="Tekstrollen" class="system-type-roles">
+	{% set roles = [
+		["H1", "type-h1", "h1", "Lorem ipsum dolor sit amet"],
+		["H2", "type-h2", "h2", "Lorem ipsum dolor sit amet"],
+		["H3", "type-h3", "h3", "Lorem ipsum dolor sit amet"],
+		["H4", "type-h4", "h4", "Lorem ipsum dolor sit amet"],
+		["H5", "type-h5", "h5", "Lorem ipsum dolor sit amet"],
+		["Inleiding", "type-lead", "p", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."],
+		["Paragraaf", "type-body", "p", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
+		["Kleine tekst", "type-small", "p", "Lorem ipsum dolor sit amet, consectetur adipiscing elit."]
+	] %}
+	{% for name, className, tag, text in roles %}
+	<div class="system-type-role">
+		<div class="grid content-start gap-2">
+			<p class="font-mono text-xs uppercase text-fg/60">{{ name }}</p>
+			{{ inlineCode(className, "justify-self-start") }}
+		</div>
+		<div class="type-container min-w-0">
+			<{{ tag }} class="{{ className }}">{{ text }}</{{ tag }}>
+		</div>
+	</div>
+	{% endfor %}
+</section>
+
+{% set markdownExample %}## Lorem ipsum dolor sit amet
+
+Lorem ipsum dolor sit amet, **consectetur adipiscing elit**. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Duis aute irure dolor in [reprehenderit](/) in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+### Lorem ipsum dolor sit amet
+
+- Lorem ipsum dolor sit amet.
+- Consectetur adipiscing elit.
+
+<p class="type-small">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>{% endset %}
+{% set markdownFile %}---
+layout: content.njk
+title: Lorem ipsum dolor sit amet
+lead: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+---
+{{ markdownExample }}{% endset %}
+{% set htmlExample %}<div class="type-container">
+  <article class="content flow">
+    <h2 class="type-h3">Lorem ipsum dolor sit amet</h2>
+    <p class="type-lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <p class="type-body">Lorem ipsum dolor sit amet, <a href="/">consectetur adipiscing elit</a>.</p>
+    <p class="type-small">Lorem ipsum dolor sit amet.</p>
+  </article>
+</div>{% endset %}
+
+<section class="system-type-examples" aria-labelledby="usage-title">
+	<header class="grid gap-2 max-w-240">
+		<h2 id="usage-title" class="type-h4">Gebruiken</h2>
+		<p class="type-body">{{ inlineCode("type-container") }} laat tekst schalen met de beschikbare breedte. {{ inlineCode("content") }} geeft Markdown automatisch de juiste rollen; {{ inlineCode("flow") }} regelt de afstanden. Losse HTML gebruikt de classes hierboven; het kopniveau kies je voor de structuur.</p>
+	</header>
+	<div class="grid gap-2 max-w-240">
+		<details>
+			<summary class="cursor-pointer py-2 type-small">HTML met classes</summary>
+			{{ code([["HTML", htmlExample]]) }}
+		</details>
+		<details>
+			<summary class="cursor-pointer py-2 type-small">Markdown met front matter</summary>
+			{{ code([["MD", markdownFile]]) }}
+		</details>
+	</div>
+	<div class="type-container max-w-240">
+		<p class="font-mono text-xs uppercase text-fg/60 mb-4">Markdown · leesproef</p>
+		<article class="content flow" data-markdown-preview>
+			{{ markdownExample | renderContent("md") | safe }}
+		</article>
+	</div>
+	<p class="type-small">Flow: 24px tussen alinea’s · 48px vóór een kop · 8px na een kop. Ook de wedstrijdpagina gebruikt {{ inlineCode("type-h3") }} en {{ inlineCode("type-lead") }} binnen een {{ inlineCode("type-container") }}.</p>
+</section>
+
+<section class="system-type-examples" aria-labelledby="grid-title">
+	<header class="grid gap-2 max-w-240">
+		<h2 id="grid-title" class="type-h4">Op het raster</h2>
+		<p class="type-body">Elke regelhoogte is een veelvoud van 8px. Hieronder staan Montreal en JetBrains Mono op dezelfde basislijn; de achtergrond toont het 8px-raster.</p>
+	</header>
+	<div class="system-type-grid max-w-240" tabindex="0" role="region" aria-label="Fontvergelijking op het 8px-raster, horizontaal scrollbaar">
+		{% set gridRows = [
+			["text-xs", "11", "h-2"],
+			["text-lg", "22", "h-4"],
+			["text-xl", "33", "h-6"]
+		] %}
+		{% for size, label, height in gridRows %}
+		<div class="{{ height }} flex items-end gap-6 whitespace-nowrap">
+			<span class="{{ size }}">Montreal</span>
+			<span class="font-mono {{ size }}">Mono {{ label }}</span>
+		</div>
+		{% endfor %}
+	</div>
+	<p class="type-small max-w-240">De 11px-proef vergelijkt de kapitaalhoogtes; de leesmaten op <a class="underline" href="/system/#fonts-title">Basics</a> beginnen bij 14px voor Montreal en JetBrains Mono. Het raster bepaalt de regelhoogte, niet elke lettergrootte.</p>
+</section>

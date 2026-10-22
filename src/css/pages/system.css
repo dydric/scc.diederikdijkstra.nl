@@ -1,0 +1,252 @@
+/* Bestand: css/pages/system.css
+ *
+ * De pagina's van het design system (layouts/system.njk). Dezelfde flow als
+ * lopende tekst (base/content.css): tussen de secties --double-flow, net als
+ * boven een kop, en binnen een sectie --flow. Toelichting staat in .content.
+ *
+ *   .system-source    de bronbestanden (source in
+ *                     partials/system/usage.njk); direct onder een kop
+ *                     dichter erop
+ *   Code-opmaak staat in css/components/code.css.
+ *   .system-table     een tabel met getallen (/system/table/): rijen van
+ *                     32px, een wit vlak met zwart kader en een zwarte kop
+ *                     met witte tekst, lijnen op 24% tussen de rijen, in JetBrains Mono, de
+ *                     getallen rechts (zoals de tabel in 576 Lab)
+ *
+ * Alles op het 8px-raster (docs/architectuur/grid.md, "Hoogtes in het design system"):
+ * lijnen en kaders zijn inset schaduwen, geen borders, want die tellen mee
+ * in de hoogte.
+ *   .system-options   opties: de code over de hele breedte, de uitleg
+ *                     eronder (options in partials/system/usage.njk)
+ */
+
+@reference "../tw/tw.css";
+
+@layer components {
+	/* De breedte groeit in stappen van 32px tot 1344px. De gecentreerde
+	   positie rondt af op een hele pixel, ook bij een oneven vensterbreedte. */
+	.system-workspace {
+		--system-width: min(1344px, max(256px, round(down, 100cqw - 48px, 32px)));
+		--system-inset: round(down, (100cqw - var(--system-width)) / 2 + 0.01px, 1px);
+		@apply ms-(--system-inset) w-(--system-width) pt-12 text-base;
+	}
+
+	/* Tijdelijke voortgangsnavigatie, op elke systempagina in twee kolommen, vanaf sm in vier. */
+	.system-review-nav {
+		@apply grid grid-cols-2 sm:grid-cols-4 gap-8 mb-16 text-sm;
+
+		a {
+			@apply block w-fit py-1 underline underline-offset-4 hover:text-fg/60;
+		}
+
+		a[aria-current="page"] {
+			@apply font-semibold;
+		}
+	}
+
+	.system-heading {
+		@apply grid gap-2 mb-16 lg:gap-0;
+	}
+
+	.system-section {
+		@apply grid gap-8 xl:grid-cols-[256px_minmax(0,1fr)] xl:gap-16;
+	}
+
+	.system-body .system-section > * {
+		@apply mt-0;
+	}
+
+	.system-section-heading {
+		@apply grid content-start gap-2 lg:gap-0;
+	}
+
+	.system-section-content {
+		@apply min-w-0 grid gap-8;
+	}
+
+	.system-color-table {
+		@apply w-full table-fixed border-separate border-spacing-0 text-start max-lg:block;
+
+		thead { @apply max-lg:sr-only; }
+		tbody { @apply max-lg:block; }
+		tbody tr {
+			@apply max-lg:grid max-lg:grid-cols-2 max-lg:gap-x-4 max-lg:gap-y-2 max-lg:py-2 max-lg:shadow-[inset_0_1px_0_var(--color-rule)];
+		}
+		th, td {
+			@apply align-top text-start px-2 py-2 lg:shadow-[inset_0_1px_0_var(--color-rule)] max-lg:block max-lg:p-0;
+		}
+		tbody th { @apply max-lg:col-span-2; }
+		tbody td { @apply min-w-0; }
+		thead th { @apply font-mono text-xs uppercase font-normal text-fg/60; }
+		thead th:not(:first-child) { @apply lg:w-40; }
+		thead th:last-child { @apply lg:w-48; }
+		/* Onder de laatste rij ook een lijn. */
+		tbody tr:last-child { @apply max-lg:shadow-[inset_0_1px_0_var(--color-rule),inset_0_-1px_0_var(--color-rule)]; }
+		tbody tr:last-child :is(th, td) { @apply lg:shadow-[inset_0_1px_0_var(--color-rule),inset_0_-1px_0_var(--color-rule)]; }
+		/* De rij volgt de tekst; het kleurvlak houdt rondom 8px ruimte. */
+		.system-color-cell { @apply lg:relative lg:h-16; }
+		.system-color-token { @apply max-lg:col-span-2; }
+		:is(th, td):first-child { @apply ps-0; }
+		:is(th, td):last-child { @apply pe-0; }
+	}
+
+	/* Beide standen tegelijkertijd tonen, onafhankelijk van de systeemmodus.
+	   De afgeleide tinten worden binnen elk voorbeeld opnieuw berekend. */
+	.system-color-mode {
+		--page-bg: var(--color-neutral-100);
+		--fg: var(--color-neutral-900);
+		--grid-accent: #1c5cff;
+		--code-bg: var(--color-neutral-100);
+		--rule: color-mix(in oklab, var(--fg) 24%, transparent);
+		--grid-value-bg: color-mix(in oklab, var(--grid-accent) 14%, var(--page-bg));
+		@apply min-w-0 grid content-start gap-2 scheme-light;
+		@apply lg:absolute lg:inset-2 lg:content-stretch;
+
+		&[data-mode="dark"] {
+			@apply scheme-dark;
+			--page-bg: oklch(17.5% 0 0);
+			--fg: var(--color-neutral-100);
+			--grid-accent: #e8341c;
+			--code-bg: var(--color-neutral-800);
+		}
+	}
+
+	.system-swatch {
+		@apply h-12 lg:h-full w-full shadow-[inset_0_0_0_1px_var(--color-rule)];
+		/* Transparante tokens krijgen de pagina van hun eigen modus eronder. */
+		background: linear-gradient(var(--swatch-color), var(--swatch-color)), var(--page-bg);
+	}
+
+	.system-color-description {
+		@apply type-small lg:whitespace-nowrap;
+	}
+
+	.system-type-examples {
+		@apply grid gap-8;
+	}
+
+	.system-type-roles {
+		@apply grid;
+	}
+
+	.system-type-role {
+		@apply grid gap-4 py-3 md:grid-cols-[192px_minmax(0,1fr)] md:gap-8 shadow-[inset_0_1px_0_var(--color-rule)];
+	}
+
+	.system-type-role:last-child {
+		@apply shadow-[inset_0_1px_0_var(--color-rule),inset_0_-1px_0_var(--color-rule)];
+	}
+
+	.system-body .system-type-roles > * {
+		@apply mt-0;
+	}
+
+	.system-body .system-type-examples > * {
+		@apply mt-0;
+	}
+
+	.system-fonts {
+		@apply grid gap-8;
+	}
+
+	.system-font {
+		@apply min-w-0 bg-page p-4 md:p-8 shadow-[inset_0_0_0_1px_var(--color-rule)];
+	}
+
+	.system-font-heading {
+		@apply grid gap-2 mb-8 lg:gap-0;
+	}
+
+	.system-font-sample {
+		@apply min-w-0 grid gap-2 py-4 shadow-[inset_0_1px_0_var(--color-rule)];
+	}
+
+	/* De laatste staal van een reeks krijgt ook een lijn eronder. */
+	.system-font-sample:not(:has(+ .system-font-sample)) {
+		@apply shadow-[inset_0_1px_0_var(--color-rule),inset_0_-1px_0_var(--color-rule)];
+	}
+
+	.system-font-meta {
+		@apply flex flex-wrap gap-x-6 gap-y-2 font-mono text-sm text-fg/60;
+	}
+
+	.system-font-target {
+		@apply break-words;
+	}
+
+	.system-weights {
+		@apply flex flex-wrap gap-x-8 gap-y-4 py-8;
+	}
+
+	.system-body > * + * {
+		@apply mt-(--double-flow);
+	}
+
+	.system-body section > * + * {
+		@apply mt-(--flow);
+	}
+
+	.system-body section > h2 + .system-source {
+		@apply mt-2;
+	}
+
+	/* De bronbestanden: een codeblok zoals .system-snippet, dezelfde regel
+	   van 24px en padding van 8px. */
+	.system-source {
+		@apply px-4 py-2 font-mono text-sm text-fg;
+	}
+
+	.system-table {
+		@apply font-mono text-xs uppercase w-page border-separate border-spacing-0 bg-white tabular-nums text-black;
+		@apply shadow-[inset_0_0_0_1px_black];
+
+		/* Dark mode: een lijn rondom, anders valt de zwarte kop weg tegen de
+		   pagina. Een outline, want die ligt over de cellen heen. */
+		@apply dark:outline-1 dark:-outline-offset-1 dark:outline-(--color-rule);
+
+		th,
+		td {
+			@apply h-8 px-2 text-end align-middle font-normal whitespace-nowrap;
+		}
+
+		/* Kop: wit op zwart. De tabel is altijd wit met zwarte tekst, ook in
+		   dark mode, de codeblokken volgen het thema. */
+		th {
+			@apply bg-black text-white;
+		}
+
+		tbody tr + tr td {
+			@apply shadow-[inset_0_1px_0_--alpha(black/24%)];
+		}
+
+		:is(th, td):first-child {
+			@apply text-start;
+		}
+	}
+
+	.system-options {
+		@apply grid gap-4 text-sm;
+	}
+
+	.system-option {
+		@apply grid gap-2;
+
+		> p {
+			@apply text-fg/60;
+		}
+	}
+
+	/* Typography, "Op het raster": de drie fonts op één basislijn, op het
+	   8px-raster. Elke tekst getrimd tot de kapitaalhoogte (text-box), de rij
+	   8, 16 of 24px hoog en onderaan uitgelijnd: de basislijn valt op een
+	   lijn. De lijnen in het accent van het raster. Op een telefoon past 33px
+	   niet: dan scrolt het vak. */
+	.system-type-grid {
+		@apply grid gap-4 overflow-x-auto p-4 shadow-[inset_0_0_0_1px_var(--color-rule)];
+		background-image: repeating-linear-gradient(to bottom, color-mix(in oklab, var(--grid-accent) 30%, transparent) 0 1px, transparent 1px 8px);
+
+		& span {
+			text-box: trim-both cap alphabetic;
+		}
+	}
+}

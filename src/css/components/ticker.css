@@ -1,0 +1,40 @@
+/* Bestand: css/components/ticker.css
+ *
+ * Het tickerbord (partials/ticker.njk): een rij cellen, elk teken in een
+ * eigen zwart blokje (zwart met wit; in het donker omgekeerd: wit met zwart): 16 breed en
+ * 32 hoog, in JetBrains Mono op 22px. Een teken is ongeveer 13px breed;
+ * 1px inspringen geeft de tekst ruimte binnen de cel. De blokjes sluiten op elkaar aan,
+ * gescheiden door een lijn van 1px: donkergrijs (wit op 16%), in dark
+ * mode lichtgrijs (zwart op 16%); een inset schaduw, net als het raster. 16 deelt elke stap
+ * van de pagina (64, op een telefoon 32), dus de rij is altijd precies
+ * zo breed: 36 blokjes op 576, 22 op 352, 16 op 256; wat niet past valt naar een tweede rij die wegvalt (overflow-clip,
+ * één rij hoog).
+ *
+ * Een cel van een melding staat in het rood (--color-warn); een cel met een
+ * fout (js/modules/effects/ticker.js) staat even omgekeerd (in het donker zwart met wit). Tijdens het
+ * ontstaan (data-ticker-boot, intro()) is een cel pas te zien met data-on.
+ */
+
+@reference "../tw/tw.css";
+
+@layer components {
+	.ticker {
+		@apply font-pixel grid h-8 w-page auto-rows-[32px] grid-cols-[repeat(auto-fill,16px)] overflow-clip text-(length:--text-pixel-2) leading-8 font-normal tracking-normal select-none;
+
+		> span {
+			@apply bg-black indent-px text-white shadow-[inset_-1px_0_0_rgb(255_255_255/0.16)] dark:bg-white dark:text-black dark:shadow-[inset_-1px_0_0_rgb(0_0_0/0.16)];
+		}
+
+		> span[data-ticker-warn] {
+			@apply text-warn;
+		}
+
+		> span[data-ticker-error] {
+			@apply bg-white text-black shadow-[inset_-1px_0_0_rgb(0_0_0/0.16)] dark:bg-black dark:text-white dark:shadow-[inset_-1px_0_0_rgb(255_255_255/0.16)];
+		}
+
+		&[data-ticker-boot] > :not([data-on]) {
+			@apply invisible;
+		}
+	}
+}

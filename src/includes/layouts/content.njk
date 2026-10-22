@@ -1,0 +1,13 @@
+---
+layout: base
+---
+{% asset "code" %}
+{# Een Markdown-pagina: container buiten de tekst, content voor rollen,
+   flow voor ritme. Lead is expliciet; de eerste alinea wordt niet geraden. #}
+<main class="content-page ms-(--page-inset) w-page pt-8 type-container">
+	<article class="content flow">
+		<h1>{{ title }}</h1>
+		{% if lead %}<p class="type-lead">{{ lead }}</p>{% endif %}
+		{{ content | safe }}
+	</article>
+</main>

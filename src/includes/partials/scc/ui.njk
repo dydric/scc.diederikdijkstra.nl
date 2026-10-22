@@ -1,0 +1,476 @@
+{# Bouwstenen van de SCC-pagina's. Opmaak: css/components/scc-ui.css,
+   beweging: js/components/scc-match.js en scc-archive.js. De pagina meldt
+   {% asset "scc-ui" %} zelf aan; importeer met context:
+
+     {% from "scc/ui.njk" import score, rating with context %}
+
+   Primitieven (los te gebruiken, ook buiten de macro's):
+     .scc-card      kaart: wit vlak, haarlijn, ronde hoek
+     .scc-eyebrow   klein label in JetBrains Mono
+     .scc-chip      label met een toon (data-tone of data-result)
+     .scc-term      terminalregel: prompt, tekst, knipperende cursor
+     .scc-flap      scoretegel in Space Mono; .scc-flaps per teken in Space Mono
+     .scc-stat-big  groot statistisch getal in Space Mono
+     .scc-meter     balk van 0 t/m 100% (--value) in een toon
+   Tonen (data-tone): pos, neutral, neg, scc, info, muted; data-result
+   (winst, gelijk, verlies) en data-state (voor, gelijk, achter) vallen
+   daarop terug. Zo betekent een kleur overal hetzelfde.
+
+   siteHeader  merk en navigatie bovenaan elke pagina
+   chip        een label met tekst in een toon
+   flap        één klaptegel (een getal, ook rollend)
+   flapText    een korte tekst, elk teken in een klaptegel
+   score       een uitslag; elk cijfer los, zodat de JS het kan laten
+               rollen (data-digit)
+   board       de scorekaart als vertrekbord: terminalregel, ploegen,
+               uitslag in klaptegels en de gegevens
+   strip       het verloop onder de kaart: de stand door de wedstrijd,
+               met goals, kaarten en VAR erop, en een speelkop
+   goals       de doelpunten als vertrekbord
+   stats       balbezit, xG en de teamcijfers met gespiegelde balken
+   facts       de kerncijfers onder de scorekaart als tegels
+   ledScore    een uitslag als kleine chip
+   pitch       de basiselftallen van beide ploegen op één veld; een speler opent zijn
+               rij in de tabel
+   playerDetail de cijfers van een speler, in zijn uitklaprij
+   lineupList  zonder veldplekken: de basiself per linie
+   ratings     de rapportcijfers van één ploeg als tabel: basis, invallers
+   rating      een rapportcijfer in de kleur van zijn band
+   legend      de vijf banden
+   result      W, G of V als blokje in de uitslagkleur
+   form        de vorm als strook blokjes, oud naar nieuw
+   profile     wanneer de goals vallen, per kwartier, voor en tegen #}
+
+{% macro siteHeader(around = null) %}
+<header class="scc-site-header">
+	<a class="scc-brand" href="/"><span class="scc-brand-mark" aria-hidden="true"></span><span>SC Cambuur</span><span class="scc-brand-sub">Wedstrijden</span></a>
+	{% if around %}
+	<nav class="scc-site-nav" aria-label="Wedstrijdnavigatie">
+		<a href="/">Archief</a>
+		{% if around.previous %}<a href="{{ around.previous.data.matchUrl }}" rel="prev">← Vorige</a>{% endif %}
+		{% if around.next %}<a href="{{ around.next.data.matchUrl }}" rel="next">Volgende →</a>{% endif %}
+	</nav>
+	{% endif %}
+</header>
+{% endmacro %}
+
+{% macro chip(text, tone = "neutral", attrs = "") -%}
+<span class="scc-chip" data-tone="{{ tone }}"{{ attrs | safe }}>{{ text }}</span>
+{%- endmacro %}
+
+{# Klaptegels: flap is één Space Mono-scoretegel (ook voor een getal dat de JS
+   laat rollen), flapText zet elk teken van een korte tekst in een eigen
+   Space Mono-tegel, zoals op een vertrekbord. #}
+{% macro flap(text, attrs = "") -%}
+<span class="scc-flap"{{ attrs | safe }}>{{ text }}</span>
+{%- endmacro %}
+
+{% macro flapText(text, attrs = "") -%}
+<span class="scc-flaps" aria-label="{{ text }}"{{ attrs | safe }}>{% for char in text | string | list %}<span{% if char == " " %} data-space{% endif %} aria-hidden="true">{{ char }}</span>{% endfor %}</span>
+{%- endmacro %}
+
+{% macro score(home, away, class = "") -%}
+<span class="scc-score {{ class }}" role="img" aria-label="{{ home }}–{{ away }}"><span data-digit data-side="home" aria-hidden="true">{{ home }}</span><span class="scc-score-sep" aria-hidden="true">–</span><span data-digit data-side="away" aria-hidden="true">{{ away }}</span></span>
+{%- endmacro %}
+
+{% macro rating(value, band, size = "md") -%}
+<span class="scc-rating" data-band="{{ band or 'leeg' }}" data-size="{{ size }}">{{ value or "–" }}</span>
+{%- endmacro %}
+
+{% macro result(letter, outcome, title = "") -%}
+<span class="scc-result" data-result="{{ outcome }}"{% if title %} title="{{ title }}"{% endif %}>{{ letter }}</span>
+{%- endmacro %}
+
+{% macro form(rows, label = "Vorm") %}
+<ol class="scc-form" aria-label="{{ label }}">
+	{% for row in rows %}
+	<li><a class="scc-form-cell" href="{{ row.url }}" data-result="{{ row.result }}" data-match="{{ row.url }}" data-date="{{ row.date }}" style="--i: {{ loop.index0 }}">
+		<span aria-hidden="true">{{ row.letter }}</span>
+		<span class="scc-tip">{{ row.day }} · {{ row.opponent }} · {{ row.score }}</span>
+		<span class="sr-only">{{ row.day }} {{ row.venue }} tegen {{ row.opponent }}, {{ row.score }}, {{ row.result }}</span>
+	</a></li>
+	{% endfor %}
+</ol>
+{% endmacro %}
+
+{# De scorekaart als vertrekbord. heading: true maakt ploegen en uitslag de
+   h1 van de pagina. Datum en aftrap staan gecentreerd boven de eindstand.
+   Vanaf het scorestreepje loopt de as langs de doelpunten terug via rust
+   naar de eerste goal. De gloed en de lijn bovenaan hebben de kleur van
+   de uitslag. turf: een naam zet het voetbalveld eronder
+   (css/components/scc-turf.css; de pagina meldt asset "scc-turf" aan),
+   met de aftrap voor avond- of middaglicht. #}
+{% macro board(data, view, story, heading = true, turf = "") %}
+{% set tag = "h1" if heading else "p" %}
+<div class="scc-board{% if turf %} scc-turf{% endif %}" data-board data-result="{{ story.result }}" data-cambuur="{{ story.side }}" data-played="{{ story.playedText or '' }}"{% if turf %} data-turf="{{ turf }}" data-kickoff="{{ data.match.fixture.date if data.match and data.match.fixture }}"{% endif %}>
+	{% if data.match %}{{ strip(story, data) }}{% endif %}
+	{#- Onder het verloop staan datum en aftrap centraal. #}
+	<div class="scc-board-when">
+		{% if story.dateLabel %}<time datetime="{{ data.matchDate }}">{{ story.dateLabel }}</time>{% endif %}
+		{% if story.dateLabel and view.kickoff %}<span aria-hidden="true">·</span>{% endif %}
+		{% if view.kickoff %}<time datetime="{{ view.kickoff }}">{{ view.kickoff }}</time>{% endif %}
+	</div>
+	<div class="scc-board-main"{% if story.goals.length %} data-timeline{% endif %}>
+		<{{ tag }} class="scc-board-teams">
+			{% for side in ["home", "away"] %}
+			<span class="scc-board-team" data-side="{{ side }}"{% if story.side == side %} data-cambuur{% endif %}><span class="scc-board-name">{{ data[side] }}</span></span>
+			{% if loop.first %}<span class="sr-only">tegen</span>{% endif %}
+			{% endfor %}
+			<span class="scc-board-score"><span class="scc-flap" data-digit data-side="home" aria-hidden="true">{{ data.score.home }}</span><span class="scc-board-dash" aria-hidden="true"></span><span class="scc-flap" data-digit data-side="away" aria-hidden="true">{{ data.score.away }}</span><span class="scc-board-fulltime" data-board-clock aria-hidden="true">{{ story.playedText or "90′" }}</span></span>
+			<span class="sr-only">, {{ data.score.home }}–{{ data.score.away }}</span>
+		</{{ tag }}>
+		{# De doelpunten lopen onder de eindstand terug in de tijd. #}
+		{% if story.goals.length %}
+		{% set firstHalf = 0 %}
+		{% if story.halftime %}{% set ht = story.halftime.split("–") %}{% set firstHalf = (ht[0] | int) + (ht[1] | int) %}{% endif %}
+		{% set secondHalf = story.goals.length - firstHalf %}
+		<ol class="scc-board-line" aria-label="Doelpunten, nieuwste eerst">
+			{% for goal in story.goals | reverse %}
+			{% if firstHalf > 0 and secondHalf > 0 and loop.index0 == secondHalf %}<li class="scc-board-marker scc-board-rest"><span>Rust 45′</span></li>{% endif %}
+			{% set makerHome = goal.playerSide == "home" %}
+			{% set makerCambuur = goal.playerSide == story.side %}
+			<li class="scc-board-goal" data-side="{{ 'home' if makerHome else 'away' }}"{% if makerCambuur %} data-cambuur{% endif %}>
+				{% for isHome in [true, false] %}
+				<span class="scc-board-scorer" data-side="{{ 'home' if isHome else 'away' }}">{% if makerHome == isHome %}
+					<span class="scc-board-scorer-minute">{{ goal.minute }}</span>
+					<span class="scc-board-scorer-body">
+						<span class="scc-board-scorer-player">{{ goal.player or "Onbekend" }}</span>
+						<span class="scc-board-scorer-meta">{{ goal.label }}{% if goal.assist and goal.kind == "goal" %} · assist {{ goal.assist }}{% elif goal.kind == "penalty" %} · vanaf de stip{% elif goal.kind == "owngoal" %} · in eigen doel{% endif %}</span>
+					</span>{% endif %}</span>
+				{% if makerHome == isHome %}<span class="scc-board-link" data-side="{{ 'home' if isHome else 'away' }}" aria-hidden="true"></span>{% endif %}
+				{% if loop.first %}<span class="scc-board-stand">{{ goal.score.text }}</span>{% endif %}
+				{% endfor %}
+			</li>
+			{% endfor %}
+		</ol>
+		{% endif %}
+	</div>
+</div>
+{% endmacro %}
+
+{# Eén markering; de tooltip geeft de volledige gebeurtenis. #}
+{% macro stripPin(moment) %}
+<li class="scc-strip-pin" data-kind="{{ moment.kind }}" data-t="{{ moment.t }}"{% if moment.t > 0.5 %} data-tip-end{% endif %} style="--at: {{ moment.t }}">
+	<button type="button" class="scc-strip-hit" aria-expanded="false" aria-label="{{ moment.minute }} · {{ moment.label }}{% if moment.score %} · {{ moment.score.text }}{% endif %} · {{ moment.player or 'Onbekend' }}">
+		<span class="scc-strip-symbol" aria-hidden="true">{% if moment.goal %}⚽{% elif moment.kind == "var" %}VAR{% endif %}</span>{% if moment.score %}<span>{{ moment.score.text }}</span>{% endif %}
+	</button>
+	<span class="scc-strip-tooltip"><strong>{{ moment.minute }} · {{ moment.label }}{% if moment.score %} · {{ moment.score.text }}{% endif %}</strong><span>{{ moment.player or "Onbekend" }}</span>{% if moment.goal and moment.assist and moment.kind == "goal" %}<span>Assist · {{ moment.assist }}</span>{% endif %}<small>{{ moment.playerTeam }}</small></span>
+</li>
+{% endmacro %}
+
+{# De standkleuren vervangen de bovenrand van het bord. Alle toelichting
+   staat eronder; compacte symbolen per ploeg met toelichting bij hover of klik. #}
+{% macro strip(story, data) %}
+<figure class="scc-strip">
+	<figcaption class="sr-only">Wedstrijdverloop: groen is een voorsprong van Cambuur, paars gelijk en rood een achterstand.</figcaption>
+	<div class="scc-strip-band" aria-hidden="true">
+		{% for state in story.states %}<span data-state="{{ state.state }}" style="--start: {{ state.start }}%; --width: {{ state.width }}%"></span>{% endfor %}
+		{% if story.axis.added %}<span class="scc-strip-added" style="--from: {{ story.axis.addedFrom }}%"></span>{% endif %}
+	</div>
+	<div class="scc-strip-plot" data-strip-plot>
+		{% for side in ["home", "away"] %}
+		<section class="scc-strip-team" data-side="{{ side }}"{% if side == story.side %} data-cambuur{% endif %} aria-label="{{ data[side] }}">
+			<h2 class="scc-strip-team-name">{{ data[side] }}</h2>
+			<ol class="scc-strip-track" data-strip-track>
+				{% for moment in story.stripTeams[side] %}{{ stripPin(moment) }}{% endfor %}
+			</ol>
+		</section>
+		{% endfor %}
+		<svg class="scc-strip-connectors" aria-hidden="true"></svg>
+	</div>
+</figure>
+{% endmacro %}
+
+{# De doelpunten als vertrekbord: minuut en stand in klaptegels, de maker
+   groot, de ploeg als label. Cambuur met een gele streep en gele stand. #}
+{% macro goals(story, data) %}
+{% if story.goals.length %}
+<ol class="scc-card scc-goals">
+	{% for goal in story.goals %}
+	{% set forCambuur = goal.playerSide == story.side %}
+	<li class="scc-goal" data-reveal{% if forCambuur %} data-cambuur{% endif %} style="--i: {{ loop.index0 }}">
+		<span class="scc-goal-minute">{{ flapText(goal.minute) }}</span>
+		<span class="scc-goal-score">{{ flapText(goal.score.text) }}</span>
+		<span class="scc-goal-body">
+			<span class="scc-goal-player">{{ goal.player or "Onbekend" }}</span>
+			<span class="scc-goal-meta">{{ goal.label }}{% if goal.assist and goal.kind == "goal" %} · assist {{ goal.assist }}{% elif goal.kind == "penalty" %} · vanaf de stip{% elif goal.kind == "owngoal" %} · in eigen doel{% endif %}</span>
+		</span>
+		<span class="scc-goal-team scc-eyebrow">{{ goal.playerTeam }}</span>
+	</li>
+	{% endfor %}
+</ol>
+{% else %}
+<p class="scc-card scc-empty"><span class="scc-term-prompt">&gt;</span> 0–0 · Geen doelpunten</p>
+{% endif %}
+{% endmacro %}
+
+{% macro teamKey(name, cambuur) -%}
+<span class="scc-key"{% if cambuur %} data-cambuur{% endif %}>{{ name }}</span>
+{%- endmacro %}
+
+{# Per rij: de waarden aan de buitenkant, het label in het midden en
+   daaronder twee gespiegelde balken die vanuit het midden groeien. Wie
+   voorstaat krijgt de volle kleur, de ander een gearceerde balk. Cambuur
+   geel, de tegenstander grijs. #}
+{% macro stats(teamStats, data, side) %}
+<div class="scc-card scc-stats" data-cambuur="{{ side }}">
+	<p class="scc-stat-keys">{{ teamKey(data.home, side == "home") }}{{ teamKey(data.away, side == "away") }}</p>
+	<div class="scc-table scc-stat-table" data-reveal role="table" aria-label="Teamcijfers {{ data.title }}, {{ data.home }} links, {{ data.away }} rechts">
+		{% for group in teamStats.groups %}
+		<div role="rowgroup" class="scc-table-group">
+			<p class="scc-table-group-title" role="row"><span role="rowheader">{{ group.name }}</span></p>
+			{% for bar in group.rows %}
+			<div class="scc-stat-row" role="row" data-lead="{{ bar.lead or 'gelijk' }}" style="--home: {{ bar.homeWidth }}%; --away: {{ bar.awayWidth }}%; --i: {{ loop.index0 }}">
+				<span role="rowheader" class="scc-stat-label">{{ bar.label }}</span>
+				<span role="cell" class="scc-stat-value" data-side="home">{{ bar.home }}</span>
+				<span class="scc-stat-bars" aria-hidden="true"><span data-side="home"><i{% if side == "home" %} data-cambuur{% endif %}></i></span><span data-side="away"><i{% if side == "away" %} data-cambuur{% endif %}></i></span></span>
+				<span role="cell" class="scc-stat-value" data-side="away">{{ bar.away }}</span>
+			</div>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endmacro %}
+
+{# De kerncijfers onder de scorekaart: een tegel per onderwerp, Cambuur
+   eerst. De toon zegt of het cijfer gunstig is. #}
+{% macro facts(story, data, view) %}
+{% set f = story.facts %}
+{% set ts = story.teamStats %}
+{% set opp = "away" if story.side == "home" else "home" %}
+<ul class="scc-facts">
+	{% if story.motm %}
+	<li class="scc-stat-card" data-reveal>
+		<p class="scc-eyebrow">Hoogste cijfer</p>
+		<div class="scc-fact-value">{{ rating(story.motm.ratingText, story.motm.band, "lg") }}</div>
+		<p class="scc-fact-main">{{ story.motm.name }}</p>
+		<p class="scc-fact-sub">{{ story.motm.team }}{% if story.motm.minutes %}, {{ story.motm.minutes }} minuten{% endif %}</p>
+	</li>
+	{% endif %}
+	{% if ts.possession %}
+	{% set share = ts.possession[story.side] %}
+	<li class="scc-stat-card" data-reveal data-tone="{{ 'pos' if share > 52 else ('neg' if share < 48 else 'neutral') }}">
+		<p class="scc-eyebrow">Balbezit</p>
+		<div class="scc-fact-value"><span class="scc-stat-big">{{ share }}%</span></div>
+		<p class="scc-fact-main">SC Cambuur</p>
+		<p class="scc-fact-sub">{{ data[opp] }} {{ ts.possession[opp] }}%</p>
+		<span class="scc-meter" style="--value: {{ share }}%" aria-hidden="true"><i></i></span>
+	</li>
+	{% endif %}
+	{% if ts.xg %}
+	{% set goalsFor = data.score[story.side] %}{% set xgFor = ts.xg[story.side] %}
+	{% set xgTone = "pos" if goalsFor - xgFor >= 0.75 else ("neg" if xgFor - goalsFor >= 0.75 else "neutral") %}
+	<li class="scc-stat-card" data-reveal data-tone="{{ xgTone }}">
+		<p class="scc-eyebrow">Kansen (xG)</p>
+		<div class="scc-fact-value"><span class="scc-stat-big">{{ ts.xg[story.side + "Text"] }}</span></div>
+		<p class="scc-fact-main"><span class="scc-chip" data-tone="{{ xgTone }}">{% if xgTone == "pos" %}Effectiever dan de kansen{% elif xgTone == "neg" %}Liet kansen liggen{% else %}Naar verwachting{% endif %}</span></p>
+		<p class="scc-fact-sub">{{ goalsFor }} {% if goalsFor == 1 %}goal{% else %}goals{% endif %} · {{ data[opp] }} {{ ts.xg[opp + "Text"] }}</p>
+	</li>
+	{% endif %}
+	{% if f.shots.cambuur != null %}
+	<li class="scc-stat-card" data-reveal data-tone="{{ 'pos' if f.shotsOn.cambuur > f.shotsOn.opponent else ('neg' if f.shotsOn.cambuur < f.shotsOn.opponent else 'neutral') }}">
+		<p class="scc-eyebrow">Op doel</p>
+		<div class="scc-fact-value"><span class="scc-stat-big">{{ f.shotsOn.cambuur }}<span class="scc-stat-of">/{{ f.shots.cambuur }}</span></span></div>
+		<p class="scc-fact-main">Van {{ f.shots.cambuur }} schoten</p>
+		<p class="scc-fact-sub">{{ data[opp] }} {{ f.shotsOn.opponent }}/{{ f.shots.opponent }}</p>
+		{% if f.shots.cambuur %}<span class="scc-meter" style="--value: {{ (f.shotsOn.cambuur / f.shots.cambuur * 100) | round }}%" aria-hidden="true"><i></i></span>{% endif %}
+	</li>
+	{% endif %}
+	<li class="scc-stat-card" data-reveal{% if f.red.cambuur %} data-tone="neg"{% endif %}>
+		<p class="scc-eyebrow">Kaarten</p>
+		<div class="scc-fact-value"><p class="scc-fact-cards" aria-hidden="true">{% for i in range(0, f.yellow.cambuur) %}<i data-kind="yellow"></i>{% endfor %}{% for i in range(0, f.red.cambuur) %}<i data-kind="red"></i>{% endfor %}{% if not (f.yellow.cambuur or f.red.cambuur) %}<span class="scc-stat-big">0</span>{% endif %}</p></div>
+		<p class="scc-fact-main">{{ f.yellow.cambuur }} geel{% if f.red.cambuur %}, {{ f.red.cambuur }} rood{% endif %}</p>
+		<p class="scc-fact-sub">{{ data[opp] }} {{ f.yellow.opponent }} geel{% if f.red.opponent %}, {{ f.red.opponent }} rood{% endif %}</p>
+	</li>
+</ul>
+{% endmacro %}
+
+{# Een uitslag als kleine chip. #}
+{% macro ledScore(home, away) -%}
+<span class="scc-chip scc-led-score" data-tone="ink" aria-label="{{ home }}–{{ away }}">{{ home }}–{{ away }}</span>
+{%- endmacro %}
+
+{# Zonder veldplekken: de basiself per linie. #}
+{% macro lineupList(team) %}
+<div class="scc-card scc-lines">
+	{% for line, code in [["Keeper", "G"], ["Verdediging", "D"], ["Middenveld", "M"], ["Aanval", "F"]] %}
+	<div class="scc-line">
+		<p class="scc-eyebrow">{{ line }}</p>
+		<ul>{% for player in team.players %}{% if player.position == code %}<li><span class="scc-shirt">{{ player.number }}</span><span>{{ player.name }}</span>{{ rating(player.ratingText, player.band, "sm") }}</li>{% endif %}{% endfor %}</ul>
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}
+
+{# De cijfers van één speler, in zijn uitklaprij in de tabel: de wissel
+   als terminalregel, dan een tegel per cijfer (label, getal, toelichting)
+   en waar iets een verhouding is een meter in de toon van dat cijfer.
+   Minuten staan al in de rij. #}
+{% macro playerDetail(player) %}
+<div class="scc-player">
+	{% if player.on or player.off %}
+	<p class="scc-term scc-player-sub"><span class="scc-term-prompt" aria-hidden="true">&gt;</span>{% if player.on %}<span>In {{ player.on }}{% if player.onFor %} voor {{ player.onFor }}{% endif %}</span>{% endif %}{% if player.off %}<span>Uit {{ player.off }}{% if player.offFor %}, {{ player.offFor }} erin{% endif %}</span>{% endif %}</p>
+	{% endif %}
+	{% if player.facts.length > (1 if player.facts[0].label == "Minuten" else 0) %}
+	<dl class="scc-player-facts">
+		{% for fact in player.facts %}{% if fact.label != "Minuten" %}
+		<div class="scc-player-fact"{% if fact.tone %} data-tone="{{ fact.tone }}"{% endif %}>
+			<dt>{{ fact.label }}</dt>
+			<dd class="scc-player-value">{{ fact.value }}</dd>
+			{% if fact.note %}<dd class="scc-player-note">{{ fact.note }}</dd>{% endif %}
+			{% if fact.share != null %}<dd class="scc-meter" style="--value: {{ fact.share }}%" aria-hidden="true"><i></i></dd>{% endif %}
+		</div>
+		{% endif %}{% endfor %}
+	</dl>
+	{% else %}
+	<p class="scc-player-sub scc-muted">Geen cijfers van deze speler.</p>
+	{% endif %}
+</div>
+{% endmacro %}
+
+{# Een speler op het veld: een ledtegel met het rugnummer en het
+   rapportcijfer als strook eronder, de status als badge rechtsboven (goals,
+   kaarten en de wissel met minuut); een doelpuntmaker krijgt een lichtrand.
+   Op het gras een schaduw en een lichtvlek. Een link
+   naar zijn rij in de tabel; scc-match.js klapt die open en scrolt ernaartoe. #}
+{% macro pitchPlayer(player, team) %}
+<li class="scc-node" style="--x: {{ player.x }}; --y: {{ player.y }}"{% if team.cambuur %} data-cambuur{% endif %}{% if player.goals.length %} data-goal{% endif %}>
+	<a class="scc-node-hit" href="#speler-{{ team.side }}-{{ player.id or player.number }}" data-player title="{{ player.name }}" aria-label="{{ player.name }}, rugnummer {{ player.number }}, rapportcijfer {{ player.ratingText or 'geen' }}{% if player.goals.length %}, {{ player.goals.length }} {{ 'goal' if player.goals.length == 1 else 'goals' }}{% endif %}{% if player.yellow.length %}, geel{% endif %}{% if player.red.length %}, rood{% endif %}{% if player.off %}, gewisseld in de {{ player.off }}{% endif %}">
+		<span class="scc-node-floor" aria-hidden="true"></span>
+		<span class="scc-node-stand" aria-hidden="true">
+			{%- if player.goals.length or player.yellow.length or player.red.length or player.off %}
+			<span class="scc-node-status">
+				{%- for minute in player.goals %}<i data-kind="goal"></i>{% endfor -%}
+				{%- for minute in player.yellow %}<i data-kind="yellow"></i>{% endfor -%}
+				{%- for minute in player.red %}<i data-kind="red"></i>{% endfor -%}
+				{%- if player.off %}<i data-kind="off"><b>↓</b>{{ player.off }}</i>{% endif -%}
+			</span>
+			{%- endif %}
+			<span class="scc-node-tile">
+				<span class="scc-node-number">{{ player.number }}</span>
+				<span class="scc-node-score" data-band="{{ player.band or 'leeg' }}">{{ player.ratingText or "–" }}</span>
+			</span>
+		</span>
+	</a>
+</li>
+{% endmacro %}
+
+{# De basiself van één ploeg op een speelhelft, van bovenaf: het eigen doel
+   onderaan, de middellijn met de halve middencirkel bovenaan; de ploeg valt
+   omhoog aan, met de linkerflank links. Het gras is hetzelfde WebGL-veld als
+   in de hero (js/modules/scc/turf.js, data-turf-view="half"), met avond- of
+   middaglicht volgens de aftrap; zonder WebGL de CSS-lijnen. Alleen voor
+   ploegen met veldplekken; de invallers staan in de tabel. #}
+{% macro pitchField(team, kickoff = "") %}
+<div class="scc-pitch" data-reveal role="group" aria-label="Basisopstelling {{ team.name }}{% if team.formation %} ({{ team.formation }}){% endif %}">
+	<div class="scc-pitch-ground" data-turf="opstelling-{{ team.side }}" data-turf-view="half"{% if kickoff %} data-kickoff="{{ kickoff }}"{% endif %}>
+		<div class="scc-pitch-lines" aria-hidden="true"><i class="scc-pitch-out"></i><i class="scc-pitch-half"></i><i class="scc-pitch-circle"></i><i class="scc-pitch-box"></i><i class="scc-pitch-six"></i><i class="scc-pitch-spot"></i></div>
+	</div>
+	<span class="scc-pitch-goal" aria-hidden="true"></span>
+	<ol class="scc-pitch-team"{% if team.cambuur %} data-cambuur{% endif %}>
+		{% for player in team.players %}{{ pitchPlayer(player, team) }}{% endfor %}
+	</ol>
+</div>
+{% endmacro %}
+
+{# Losse speelhelft met naam en formatie erboven (voor de stijlpagina). #}
+{% macro pitchHalf(team, kickoff = "") %}
+<figure class="scc-pitch-wrap">
+	<figcaption class="scc-pitch-caption"><b>{{ team.name }}</b>{% if team.formation %}<span>{{ team.formation }}</span>{% endif %}</figcaption>
+	{{ pitchField(team, kickoff) }}
+</figure>
+{% endmacro %}
+
+{# Twee speelhelften naast elkaar (voor de stijlpagina). #}
+{% macro pitch(teams, kickoff = "") %}
+<div class="scc-pitches" role="group" aria-label="Basisopstellingen">
+	{% for team in teams %}{{ pitchHalf(team, kickoff) }}{% endfor %}
+</div>
+<p class="scc-pitches-note scc-muted">Tik op een speler: zijn rij in de tabel klapt open.</p>
+{% endmacro %}
+
+{% macro playerEvents(player, assists = true) -%}
+<span class="scc-rating-events">
+	{%- for minute in player.goals %}<span class="scc-tag" data-kind="goal">Goal {{ minute }}</span>{% endfor -%}
+	{%- if assists %}{% for minute in player.assists %}<span class="scc-tag" data-kind="assist">Assist {{ minute }}</span>{% endfor %}{% endif -%}
+	{%- for minute in player.yellow %}<span class="scc-tag" data-kind="yellow">{{ minute }}</span>{% endfor -%}
+	{%- for minute in player.red %}<span class="scc-tag" data-kind="red">{{ minute }}</span>{% endfor -%}
+	{%- if player.on %}<span class="scc-tag" data-kind="on">↑ {{ player.on }}</span>{% endif -%}
+	{%- if player.off %}<span class="scc-tag" data-kind="off">↓ {{ player.off }}</span>{% endif -%}
+</span>
+{%- endmacro %}
+
+{% macro ratingRow(player, index, side) %}
+<details class="scc-rating-item" id="speler-{{ side }}-{{ player.id or player.number }}" name="spelers-{{ side }}" data-reveal data-band="{{ player.band or 'leeg' }}" style="--score: {{ ((player.rating or 5) - 5) / 5 * 100 }}%; --i: {{ index }}">
+	<summary class="scc-rating-row">
+		<span>{{ rating(player.ratingText, player.band, "md") }}</span>
+		<span class="scc-rating-number"><span class="scc-shirt">{{ player.number }}</span></span>
+		<span class="scc-rating-name">{{ player.name }}{% if player.captain %} <abbr class="scc-tag" title="Aanvoerder">C</abbr>{% endif %}</span>
+		{{ playerEvents(player) }}
+		<span class="scc-rating-minutes">{% if player.minutes %}{{ player.minutes }}′{% else %}–{% endif %}</span>
+		<span class="scc-rating-toggle" aria-hidden="true"></span>
+		<span class="scc-rating-bar" aria-hidden="true"></span>
+	</summary>
+	{{ playerDetail(player) }}
+</details>
+{% endmacro %}
+
+{# Een compacte rij zonder uitklap: cijfer, nummer, naam, acties, minuten. #}
+{% macro ratingLine(player, index) %}
+<div class="scc-rating-line">
+	<span>{{ rating(player.ratingText, player.band, "sm") }}</span>
+	<span class="scc-rating-number"><span class="scc-shirt">{{ player.number }}</span></span>
+	<span class="scc-rating-name">{{ player.name }}</span>
+	{{ playerEvents(player, false) }}
+	<span class="scc-rating-minutes">{% if player.minutes %}{{ player.minutes }}′{% else %}–{% endif %}</span>
+</div>
+{% endmacro %}
+
+{# compact: de tegenstander, zonder uitklap. field: de speelhelft in een
+   kader tussen de kop en de basis (alleen met veldplekken), met de aftrap
+   voor het licht. #}
+{% macro ratings(team, compact = false, field = false, kickoff = "") %}
+<div class="scc-card scc-table scc-ratings"{% if team.cambuur %} data-cambuur{% endif %}{% if compact %} data-compact{% endif %} aria-label="Rapportcijfers {{ team.name }}">
+	<div class="scc-ratings-title">
+		<p>{{ teamKey(team.name, team.cambuur) }}{% if team.formation or team.coach %} <span class="scc-ratings-meta">{% if team.formation %}{{ team.formation }}{% endif %}{% if team.formation and team.coach %} · {% endif %}{% if team.coach %}Trainer {{ team.coach }}{% endif %}</span>{% endif %}</p>
+		{% if team.average %}<p class="scc-ratings-average"><span class="scc-eyebrow">Gem.</span> {{ rating(team.average, team.averageBand, "sm") }}</p>{% endif %}
+	</div>
+	{% if field and team.complete %}<div class="scc-ratings-field">{{ pitchField(team, kickoff) }}</div>{% endif %}
+	<div class="scc-table-group">
+		<p class="scc-table-group-title">Basis</p>
+		{% for player in team.players | sort(true, false, "rating") %}{% if compact %}{{ ratingLine(player, loop.index0) }}{% else %}{{ ratingRow(player, loop.index0, team.side) }}{% endif %}{% endfor %}
+	</div>
+	{% if team.bench.length %}
+	<div class="scc-table-group">
+		<p class="scc-table-group-title">Invallers</p>
+		{% for player in team.bench | sort(true, false, "rating") %}{% if compact %}{{ ratingLine(player, loop.index0 + 11) }}{% else %}{{ ratingRow(player, loop.index0 + 11, team.side) }}{% endif %}{% endfor %}
+	</div>
+	{% endif %}
+</div>
+{% endmacro %}
+
+{% macro legend() %}
+<ul class="scc-legend" aria-label="Rapportcijfers">
+	{% for band in sccRatingBands %}
+	<li>{{ rating(band.range, band.key, "sm") }}<span>{{ band.label }}</span></li>
+	{% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro profile(rows) %}
+<figure class="scc-card scc-profile" data-reveal>
+	<div class="scc-profile-cols" role="img" aria-label="Doelpunten per kwartier, voor en tegen SC Cambuur">
+		{% for row in rows %}
+		<div class="scc-profile-col" style="--for: {{ row.for }}; --against: {{ row.against }}; --i: {{ loop.index0 }}">
+			<span class="scc-profile-value" data-side="for">{{ row.for }}</span>
+			<span class="scc-profile-bar" data-side="for"></span>
+			<span class="scc-profile-label">{{ row.label }}′</span>
+			<span class="scc-profile-bar" data-side="against"></span>
+			<span class="scc-profile-value" data-side="against">{{ row.against }}</span>
+		</div>
+		{% endfor %}
+	</div>
+	<figcaption class="scc-profile-caption"><span data-side="for">Voor Cambuur</span><span data-side="against">Tegen Cambuur</span></figcaption>
+</figure>
+{% endmacro %}

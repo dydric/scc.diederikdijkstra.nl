@@ -1,0 +1,128 @@
+---
+title: Basics
+permalink: /system/
+colors:
+  - ["Page", "bg-page", "--page-bg", "neutral-100", "oklch(17.5% 0 0)", "De ondergrond van de pagina."]
+  - ["Foreground", "bg-fg", "--fg", "neutral-900", "neutral-100", "Tekst en iconen; transparantie voor secundaire tekst."]
+  - ["Rule", "bg-rule", "--rule", "Foreground 24%", "Foreground 24%", "Lijnen en kaders als inset schaduw."]
+  - ["Warning", "bg-warn", "--color-warn", "#e8341c", "#e8341c", "De kleur voor meldingen."]
+  - ["Cambuur", "bg-scc", "--scc", "#ffd31a", "#ffd31a", "Het geel van het shirt: vlakken met zwarte tekst, nooit als tekstkleur."]
+  - ["Winst", "bg-result-winst", "--result-winst", "#3ccf7e", "#3ccf7e", "W, de vorm en de rand van een rij."]
+  - ["Gelijk", "bg-result-gelijk", "--result-gelijk", "#ffa62b", "#ffa62b", "G, de vorm en de rand van een rij."]
+  - ["Verlies", "bg-result-verlies", "--result-verlies", "#e8341c", "#e8341c", "V, de vorm en de rand van een rij."]
+sansSizes: ["text-sm", "text-base", "text-md", "text-lg", "text-xl", "text-2xl", "text-3xl", "text-4xl"]
+monoSizes: ["text-sm", "text-base", "text-lg"]
+scoreSizes: ["text-[44px]", "text-[88px]", "text-[132px]"]
+weights:
+  - ["font-extralight", "200"]
+  - ["font-light", "300"]
+  - ["font-normal", "400"]
+  - ["font-medium", "500"]
+  - ["font-semibold", "600"]
+  - ["font-bold", "700"]
+  - ["font-extrabold", "800"]
+---
+{% from "system/usage.njk" import code, inlineCode, source with context %}
+{% from "system/colors.njk" import colorTable with context %}
+
+{% macro specimen(classes, text) %}
+<div class="system-font-sample" data-type-sample>
+	<p class="system-font-meta">{{ inlineCode(classes) }}<span data-type-spec></span></p>
+	<p class="system-font-target {{ classes }}" data-type-target>{{ text }}</p>
+</div>
+{% endmacro %}
+
+<section class="system-section type-container" aria-labelledby="colors-title">
+	<header class="system-section-heading type-container">
+		<p class="font-mono text-xs uppercase text-fg/60">01 / Color</p>
+		<h2 id="colors-title" class="type-h2">Kleuren</h2>
+	</header>
+	<div class="system-section-content type-container">
+		{{ colorTable(colors) }}
+		{{ code([["HTML", '<p class="text-fg bg-page">Lorem ipsum dolor sit amet.</p>'], ["CSS", '@apply text-fg bg-page;']]) }}
+	</div>
+</section>
+
+<section class="system-section type-container" aria-labelledby="fonts-title">
+	<header class="system-section-heading type-container">
+		<p class="font-mono text-xs uppercase text-fg/60">02 / Type</p>
+		<h2 id="fonts-title" class="type-h2">Fonts</h2>
+	</header>
+	<div class="system-fonts">
+		<article class="system-font type-container">
+			<header class="system-font-heading">
+				<p class="font-mono text-xs uppercase text-fg/60">Tekst & koppen</p>
+				<h3 class="type-h3">PP Neue Montreal</h3>
+			</header>
+			{% for size in sansSizes %}
+				{% if size == "text-3xl" or size == "text-4xl" %}
+					{{ specimen(size + " font-medium", "Lorem ipsum") }}
+				{% else %}
+					{{ specimen(size, "Lorem ipsum dolor sit amet, consectetur adipiscing elit.") }}
+				{% endif %}
+			{% endfor %}
+			<div class="system-weights">
+				{% for weight in weights %}
+				<div><p class="text-lg {{ weight[0] }}">Aa</p><p class="font-mono text-sm text-fg/60">{{ weight[1] }}</p></div>
+				{% endfor %}
+			</div>
+			{{ code([["HTML", '<div class="type-container">
+  <h1 class="type-h1">Lorem ipsum</h1>
+  <h2 class="type-h2">Dolor sit amet</h2>
+  <p class="type-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+  <p class="type-small">Sed do eiusmod tempor.</p>
+</div>']]) }}
+			<details class="mt-4">
+				<summary class="cursor-pointer py-2 type-small">Fontregels en bronnen</summary>
+				<div class="content flow pt-2">
+					<p>Montreal is het standaardfont op <code>body</code>, voor lopende tekst en koppen. Het variabele gewicht loopt van 200 t/m 800. Vanaf <code>text-lg</code> heeft de schaal een lichte negatieve tracking in em.</p>
+					<p>Gebruik voor tekst die met de kolombreedte schaalt de gedeelde rollen op <a href="/system/typography/">Typography</a>. De losse maten hierboven blijven vast.</p>
+					{{ source(["css/tw/base/fonts.css", "css/tw/theme/typography.css", "css/tw/utilities/typography.css"]) }}
+				</div>
+			</details>
+		</article>
+
+		<article class="system-font type-container">
+			<header class="system-font-heading">
+				<p class="font-mono text-xs uppercase text-fg/60">Code & kleine labels</p>
+				<h3 class="type-h3">JetBrains Mono</h3>
+			</header>
+			{% for size in monoSizes %}
+				{{ specimen("font-mono " + size, "const grid = 8; // 0123456789") }}
+			{% endfor %}
+			<div class="py-8 grid gap-4">
+				<p class="font-mono text-base break-all">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 → != === =&gt; {} [] ()</p>
+			</div>
+			{{ code([["HTML", '<code class="font-mono text-sm">const grid = 8;</code>']]) }}
+			<details class="mt-4">
+				<summary class="cursor-pointer py-2 type-small">Fontregels en bronnen</summary>
+				<div class="content flow pt-2">
+					<p>JetBrains Mono gebruikt dezelfde maatschaal als Montreal, met variabele gewichten van 100 t/m 800, ook cursief. Op de SCC-pagina's draagt het de kleine labels, tags en waarden tot circa 14px; daarnaast blijft het geschikt voor code en verwisselende tekens.</p>
+					<p>Ligaturen (<code>calt</code>) staan vanzelf aan. Een <code>tracking-*</code> utility zet ze uit.</p>
+					{{ source(["css/tw/base/fonts.css", "css/tw/theme/typography.css"]) }}
+				</div>
+			</details>
+		</article>
+
+		<article class="system-font type-container">
+			<header class="system-font-heading">
+				<p class="font-mono text-xs uppercase text-fg/60">Grote data, klok & uitslagen</p>
+				<h3 class="type-h3">Space Mono</h3>
+			</header>
+			{{ specimen("font-data font-[400] text-[15px]", "DATUM 24 OKT · AFTRAP 18:45") }}
+			{{ specimen("font-data font-[400] text-[18px]", "Balbezit 58% · xG 1,53") }}
+			{% for size in scoreSizes %}
+				{{ specimen("font-data font-[700] " + size, "2–1") }}
+			{% endfor %}
+			{{ code([["HTML", '<span class="font-data font-[700] text-[88px]">2–1</span>']]) }}
+			<details class="mt-4">
+				<summary class="cursor-pointer py-2 type-small">Fontregels en bronnen</summary>
+				<div class="content flow pt-2">
+					<p>Space Mono Regular geeft grotere waarden en tijdstippen een monobrede vorm. Bold draagt de aftelklok, uitslagen en belangrijke cijfers. Beide gewichten worden lokaal geladen. De kleine labels en tags gebruiken JetBrains Mono.</p>
+					{{ source(["css/tw/base/fonts.css", "css/components/scc-ui.css"]) }}
+				</div>
+			</details>
+		</article>
+
+	</div>
+</section>

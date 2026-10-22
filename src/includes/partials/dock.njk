@@ -1,0 +1,42 @@
+{# De dock staat onder elke SCC-pagina. De eerste keer per sessie
+   verschijnt de rij via de terminalintro; bij navigatie komt de vorige
+   rij terug. Het vangnet toont de pagina als de console niet start. #}
+{% from "ticker.njk" import ticker with context %}
+{% asset "dock" %}
+<script>
+	var dockRoot = document.documentElement;
+	try {
+		if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			dockRoot.setAttribute('data-dock-pending', '');
+			if (!sessionStorage.getItem('dock-boot')) dockRoot.setAttribute('data-dock-boot', '');
+		}
+	} catch (e) {}
+	setTimeout(function () {
+		if (dockRoot.hasAttribute('data-dock-live')) return;
+		dockRoot.removeAttribute('data-dock-boot');
+		dockRoot.removeAttribute('data-dock-pending');
+	}, 3000);
+</script>
+<div class="dock-space" aria-hidden="true"></div>
+<div class="dock">
+	{{ ticker(site.location.name, mode = "console", cells = 80, location = site.location, state = console) }}
+</div>
+{# De rij van de vorige pagina terug (js/components/ticker.js bewaart hem
+   bij het weggaan, KEY dock-row), vóór de eerste paint: zo loopt de band
+   door bij een wissel. Alleen als hij vers is (FRESH ms: een wissel, niet
+   een bezoek later), niet bij de intro en niet met reduced motion. #}
+<script>
+	try {
+		var FRESH = 10000;
+		var saved = JSON.parse(sessionStorage.getItem('dock-row'));
+		if (!matchMedia('(prefers-reduced-motion: reduce)').matches && saved && Date.now() - saved.at < FRESH && !dockRoot.hasAttribute('data-dock-boot')) {
+			var cells = document.querySelectorAll('.dock .ticker > span');
+			for (var i = 0; i < cells.length; i++) {
+				var c = saved.cells[i];
+				cells[i].textContent = c ? c[0] : ' ';
+				if (c && c[1]) cells[i].setAttribute('data-ticker-warn', '');
+			}
+			dockRoot.setAttribute('data-dock-restored', '');
+		}
+	} catch (e) {}
+</script>

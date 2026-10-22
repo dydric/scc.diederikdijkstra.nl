@@ -1,0 +1,95 @@
+/* Maten voor de opbouw van de pagina. */
+@theme {
+	/* De stap van p-*, m-*, gap-*, size-* enzovoort: 4px, niet 0.25rem.
+	   html staat op de maat van de lopende tekst (13px, vanaf md 14px), dus
+	   in rem was elke afstand een kommagetal (gap-1.5 = 4,875px), en viel
+	   alles eronder naast het pixelraster: tekst en lijnwerk van
+	   1px staan dan een pixel naast elkaar. */
+	--spacing: 4px;
+
+	--height-screen-dynamic: 100dvh;
+
+	/* De breedte van de pagina (w-page, max-w-page): op elke pagina even
+	   breed, de foto op home net zo goed als de tekst van een bericht. Geen
+	   vloeiende maat maar vaste stappen, zoals op een 8-bit scherm: de
+	   grootste stap van --page-step die past met --page-margin aan
+	   weerskanten, tussen --page-min en --page-max. Minstens 24px aan elke
+	   kant, anders staat het op een telefoon tegen de rand. De lucht die
+	   bij een stap overblijft komt bij de marge.
+
+	   De stap is 64 (576, 512, 448), en daaronder 32, één kolom (tot
+	   --page-step-small-max, 416): anders blijft er op een telefoon tot 88px
+	   marge over, en staan de pagina en de dock (partials/dock.njk, strak op
+	   de pagina) verloren op het scherm. Dus 416, 384, 352, 320, 288 of 256:
+	   de iPhone 17 Pro (402 breed) krijgt 352 (25px marge), de Pro Max
+	   (440) 384 (28px), een iPhone 16 (393) 320 (36px). Geen @media: de
+	   grootste van de twee stappen, allebei met dezelfde breedte gerekend
+	   (100cqw, zonder de scrollbalk), dus de pagina wordt nooit smaller als
+	   het scherm breder wordt.
+	   De stap is een even aantal px: zo staat alles erin op hele pixels, en
+	   blijven tekst en lijnwerk scherp.
+
+	   100cqw is de breedte van <body> (de container "page", base/_.css):
+	   zonder de scrollbalk, die altijd een vaste strook heeft
+	   (base/scrollbar.css). Dus verspringt er niets als hij verschijnt. */
+	--container-page: max(
+		var(--page-min),
+		round(down, min(var(--page-max), 100cqw - 2 * var(--page-margin)), var(--page-step)),
+		min(
+			round(down, min(var(--page-max), 100cqw - 2 * var(--page-margin)), var(--page-step-small)),
+			var(--page-step-small-max)
+		)
+	);
+}
+
+:root {
+	/* De stappen van de paginabreedte (--container-page hierboven): 64, en
+	   tot 416 ook 32. */
+	--page-step: 64px;
+	--page-step-small: 32px;
+	--page-step-small-max: 416px;
+	--page-min: 256px;
+	--page-max: 576px;
+	--page-margin: 24px;
+
+	/* Waar de kolom begint: de lucht links van --container-page, naar
+	   beneden afgerond op een hele pixel. Centreren (mx-auto, place-items,
+	   1fr aan weerskanten) geeft bij een oneven breedte een halve pixel, en
+	   dan staat de kolom naast het raster (base/grid.css). + 0.01px: 100cqw
+	   is soms net iets minder dan de breedte (zie de containerbreedte). */
+	--page-inset: round(down, (100cqw - var(--container-page)) / 2 + 0.01px, 1px);
+
+	/* De breedte van de dock (partials/dock.njk), op elke breedte gelijk
+	   aan de werkruimte van het design system (--system-width,
+	   css/pages/scc.css): de beschikbare breedte met --dock-margin (24)
+	   aan weerskanten, tot --dock-max (1344), nooit smaller dan de pagina
+	   (op een telefoon is dat dezelfde breedte). De stap is 32 (de cellen
+	   van 16 passen), vanaf xl 96 (3 kolommen, cellen van 24): 576, 672 ...
+	   1344. Een even aantal px, dus de randen staan op hele pixels. Home en
+	   404 gebruiken hem ook voor hun kolom. */
+	--dock-step: 32px;
+	--dock-max: 1344px;
+	--dock-margin: 24px;
+	--dock-w: max(var(--container-page), round(down, min(var(--dock-max), 100cqw - 2 * var(--dock-margin)), var(--dock-step)));
+	--dock-inset: calc(var(--page-inset) - (var(--dock-w) - var(--container-page)) / 2);
+
+	/* De balk bovenaan (base/grid.css): 8px, op elke pagina. Een layout die
+	   het scherm vult, trekt hem af. */
+	--grid-bar: 8px;
+
+	/* Breedte van de scrollbalk (base/scrollbar.css). */
+	--sb-size: 10px;
+
+	/* Ruimte tussen blokken in .flow (base/content.css): één regel van de
+	   lopende tekst (text-base, theme/typography.css), dus hij schaalt
+	   daarmee mee. --double-flow staat boven een kop. */
+	--flow: var(--text-base--line-height);
+	--double-flow: calc(var(--flow) * 2);
+}
+
+/* Vanaf xl de dock in cellen van 24: stappen van 96 (theme/layout.css). */
+@media (min-width: 1280px) {
+	:root {
+		--dock-step: 96px;
+	}
+}

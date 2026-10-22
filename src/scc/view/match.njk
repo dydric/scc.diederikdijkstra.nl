@@ -1,0 +1,126 @@
+---
+layout: base
+title: Wedstrijd
+pagination:
+  data: collections.scc
+  size: 1
+  alias: wedstrijd
+permalink: "{{ wedstrijd.data.matchUrl }}"
+eleventyExcludeFromCollections: true
+edges: false
+---
+{% asset "scc" %}
+{% asset "scc-ui" %}
+{% asset "scc-turf" %}
+{% asset "scc-match" %}
+{% from "scc/ui.njk" import siteHeader, board, facts, stats, lineupList, ratings, legend with context %}
+{% set view = wedstrijd | sccMatchView %}
+{% set story = view.story %}
+{% set data = wedstrijd.data %}
+{% set around = collections.scc | sccNeighbors(wedstrijd) %}
+<main class="scc-workspace scc-match">
+	{#- Voor de dock (docs/componenten/dock.md): een samenvatting van deze
+	    wedstrijd; het verloop en de eindstand zijn statisch. #}
+	<script type="application/json" id="scc-match-data">{{ view.summary | dump | safe }}</script>
+	{{ siteHeader(around) }}
+
+	{# De hero: het vertrekbord met de uitslag en de gegevens, het korte
+	   verslag en het statische verloop, in één paneel. #}
+	<header class="scc-hero">
+		{{ board(data, view, story, true, "detail") }}
+		<section class="scc-hero-report type-container" aria-labelledby="report-title">
+			<h2 id="report-title" class="scc-term"><span class="scc-term-prompt" aria-hidden="true">&gt;</span><span>Verslag</span></h2>
+			{% if wedstrijd.templateContent %}
+				<article class="scc-report content flow">{{ wedstrijd.templateContent | safe }}</article>
+			{% else %}
+				<p class="scc-report scc-muted">Verslag volgt nog.</p>
+			{% endif %}
+			<dl class="scc-hero-details">
+				{% if view.round %}<div><dt>Speelronde</dt><dd>{{ view.round.split(" - ") | last }}</dd></div>{% endif %}
+				{% if view.venue %}<div><dt>Stadion</dt><dd>{{ view.venue }}</dd></div>{% endif %}
+				{% if view.referee %}<div><dt>Scheidsrechter</dt><dd>{{ view.referee }}</dd></div>{% endif %}
+			</dl>
+		</section>
+	</header>
+
+	{% if data.match %}{{ facts(story, data, view) }}{% endif %}
+
+	{#- De video over de volle breedte, dan de opstellingen (per ploeg een
+	    tabelkaart met de speelhelft tussen kop en basis, onderaan de legenda), de cijfers en
+	    kaarten en VAR. De doelpuntmakers staan in het bord. #}
+	{% set cambuur = story.pitch | selectattr("cambuur") | first %}
+	{% set opponent = story.pitch | rejectattr("cambuur") | first %}
+	{% set hasStats = data.match and story.teamStats and story.teamStats.bars.length %}
+	<div class="scc-body">
+		{% if view.video %}
+		<section class="scc-section scc-wide" aria-labelledby="video-title">
+			<header class="scc-section-heading">
+				<h2 id="video-title">Samenvatting</h2>
+			</header>
+			<figure class="scc-card scc-video">
+				<iframe class="aspect-video w-full" src="{{ view.video.embedUrl }}" title="{{ view.video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+				<figcaption><a href="{{ view.video.url }}">▶ {{ data.videoTitle or "Video op YouTube" }}</a></figcaption>
+			</figure>
+		</section>
+		{% endif %}
+		{% if cambuur %}
+		<section class="scc-section scc-wide" aria-labelledby="lineups-title">
+			<header class="scc-section-heading">
+				<h2 id="lineups-title">Opstellingen</h2>
+			</header>
+			<div class="scc-lineup">
+				<div class="scc-lineup-teams">
+					{% for team in [cambuur, opponent] %}{% if team %}
+					<div class="scc-lineup-team">
+						{% if not team.complete %}{{ lineupList(team) }}{% endif %}
+						{{ ratings(team, false, true, data.match.fixture.date if data.match and data.match.fixture) }}
+					</div>
+					{% endif %}{% endfor %}
+				</div>
+				{{ legend() }}
+				{% if cambuur.complete or opponent.complete %}<p class="scc-pitches-note scc-muted">Tik op een speler: zijn rij in de tabel klapt open.</p>{% endif %}
+			</div>
+		</section>
+		{% endif %}
+
+		{% if hasStats %}
+		<section class="scc-section scc-wide" aria-labelledby="stats-title">
+			<header class="scc-section-heading">
+				<h2 id="stats-title">Cijfers</h2>
+			</header>
+			{{ stats(story.teamStats, data, story.side) }}
+		</section>
+		{% endif %}
+
+		{% set others = view.timeline | rejectattr("type", "equalto", "Goal") %}
+		{% if data.match and others | length %}
+		<section class="scc-section scc-wide" aria-labelledby="moments-title">
+			<header class="scc-section-heading">
+				<h2 id="moments-title">Kaarten en VAR</h2>
+				<span class="scc-section-count">{{ others | length }}</span>
+			</header>
+			<ol class="scc-card scc-moments">
+				{% for event in others %}
+				<li><span class="scc-moment-minute">{{ event.minute }}</span><span>{{ event.label }}{% if event.player %} · {{ event.player }}{% endif %}</span><span class="scc-muted">{{ event.team }}</span></li>
+				{% endfor %}
+			</ol>
+		</section>
+		{% endif %}
+
+	</div>
+
+	<nav class="scc-next" aria-label="Andere wedstrijden">
+		{#- Per kaart: richting en datum, de tegenstander, en de uitslag als
+		    chip in de uitslagkleur met thuis/uit erachter. #}
+		{% for item in [around.previous, around.next] %}{% if item %}{% set row = item | sccMatchRow %}
+		<a class="scc-next-link" href="{{ row.url }}" rel="{{ 'prev' if loop.first else 'next' }}" data-dir="{{ 'prev' if loop.first else 'next' }}" data-result="{{ row.result }}">
+			<span class="scc-next-label font-mono text-[11px] leading-4 uppercase"><span class="scc-next-dir">{{ "← Vorige" if loop.first else "Volgende →" }}</span><time datetime="{{ row.date }}">{{ row.day }} {{ row.year }}</time></span>
+			<span class="scc-next-title">{{ row.opponent }}</span>
+			<span class="scc-next-meta">
+				<span class="scc-chip scc-led-score" data-result="{{ row.result }}" aria-label="Uitslag {{ row.score }}, {{ row.result }}">{{ row.score }}</span>
+				<span class="scc-next-note font-mono text-[11px] leading-4 uppercase">{{ row.venue }}{% if row.competition %} · {{ row.competition }}{% endif %}</span>
+			</span>
+		</a>
+		{% endif %}{% endfor %}
+	</nav>
+</main>

@@ -1,0 +1,41 @@
+/* Gedeelde tekstrollen: dezelfde regels voor losse HTML en .content.
+ * De benoemde container staat op een ouder, niet op het tekstelement zelf.
+ * Vaste stappen houden alle regelhoogtes op het raster van 8px. */
+@utility type-container {
+	@apply @container/type;
+}
+
+@utility type-h1 {
+	@apply font-sans text-2xl font-medium text-fg text-balance;
+	@apply @min-[496px]/type:text-3xl @min-[896px]/type:text-4xl;
+}
+
+@utility type-h2 {
+	@apply font-sans text-xl font-bold text-fg text-balance;
+	@apply @min-[496px]/type:text-2xl @min-[896px]/type:text-3xl;
+}
+
+@utility type-h3 {
+	@apply font-sans text-lg font-bold text-fg text-balance;
+	@apply @min-[496px]/type:text-xl @min-[896px]/type:text-2xl;
+}
+
+@utility type-h4 {
+	@apply font-sans text-lg font-semibold text-fg text-balance @min-[768px]/type:text-xl;
+}
+
+@utility type-h5 {
+	@apply font-sans text-base font-medium text-fg text-balance @min-[768px]/type:text-lg;
+}
+
+@utility type-lead {
+	@apply font-sans text-base font-semibold text-fg/80 @min-[624px]/type:text-lg;
+}
+
+@utility type-body {
+	@apply font-sans text-base font-normal text-fg/80 @min-[624px]/type:text-md;
+}
+
+@utility type-small {
+	@apply font-sans text-base font-normal text-fg/80;
+}

@@ -1,0 +1,140 @@
+---
+layout: base
+title: Cambuurwedstrijden
+permalink: /
+console: await
+eleventyExcludeFromCollections: true
+edges: false
+---
+{% asset "scc" %}
+{% asset "scc-ui" %}
+{% asset "scc-turf" %}
+{% asset "scc-archive" %}
+{% asset "scc-upcoming" %}
+{% from "scc/ui.njk" import form, rating, siteHeader with context %}
+{% from "scc/preview.njk" import teamContext, prediction %}
+{% set archief = collections.scc | sccArchive %}
+<main class="scc-workspace scc-archive">
+	{{ siteHeader() }}
+	<h1 class="sr-only">SC Cambuur: komende wedstrijden en wedstrijdarchief</h1>
+
+	{#- Het programma: de eerstvolgende wedstrijd met vorm en aftelklok,
+	    daaronder de wedstrijden daarna. scc-upcoming.js ververst
+	    beide met de actuele lijst uit Netlify Blobs en laat de klok lopen;
+	    zonder JS blijft de klok verborgen en staan datum en aftrap er wel. #}
+	<section class="scc-upcoming" data-upcoming aria-label="Komende wedstrijden">
+		{% set first = upcoming[0] %}
+		{#- Het voetbalveld eronder: avondlicht of middagschaduw volgt de aftrap. #}
+		<div class="scc-upcoming-main scc-turf" data-turf="home" data-kickoff="{{ first.date if first }}">
+			{{ prediction(first) }}
+			<p class="scc-upcoming-head scc-term">
+				<span class="scc-term-prompt" aria-hidden="true">&gt;</span><span>Volgende wedstrijd</span><span class="scc-term-cursor" aria-hidden="true"></span><span class="scc-upcoming-context" data-upcoming-context{% if not first %} hidden{% endif %}>{{ first.context if first }}</span>
+			</p>
+			<div class="scc-upcoming-stage" data-upcoming-stage{% if not first %} hidden{% endif %}>
+				<span class="scc-upcoming-when" data-upcoming-when{% if not first %} hidden{% endif %}><time data-upcoming-date datetime="{{ first.date if first }}">{{ first.day if first }}</time><span aria-hidden="true">·</span><time data-upcoming-time>{{ first.time if first }}</time></span>
+				<div class="scc-upcoming-teams"{% if first.home.length > 11 or first.away.length > 11 %} data-long-names{% endif %}>
+					{% for side in ['home', 'away'] %}
+					<div class="scc-preview-team" data-side="{{ side }}">
+						<span class="scc-preview-side">{{ "Thuis" if side == "home" else "Uit" }}</span>
+						<p class="scc-upcoming-name" data-upcoming-{{ side }}{% if first and first[side] == "SC Cambuur" %} data-cambuur{% endif %}>{{ first[side] if first }}</p>
+						<div data-preview-team="{{ side }}">{% if first %}{{ teamContext(first.preview[side]) }}{% endif %}</div>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="scc-upcoming-countdown" data-upcoming-countdown role="timer" hidden>
+					<span class="scc-upcoming-countdown-label" aria-hidden="true">Aftrap over</span>
+					<span class="scc-upcoming-clock" data-upcoming-clock>
+						{%- for unit in [["days", "dagen"], ["hours", "uur"], ["minutes", "min"], ["seconds", "sec"]] %}
+						<span class="scc-upcoming-unit"><span data-unit="{{ unit[0] }}"></span><span class="font-mono text-[11px] leading-4 uppercase" aria-hidden="true">{{ unit[1] }}</span></span>
+						{%- endfor %}
+					</span>
+				</div>
+				<p class="scc-preview-note" data-preview-standings-date>{% if first.preview.standingsAt %}Stand bijgewerkt {{ first.preview.standingsUpdated }}{% endif %}</p>
+
+			</div>
+			<p class="scc-upcoming-empty" data-upcoming-empty{% if first %} hidden{% endif %}>Nog geen wedstrijden gepland.</p>
+		</div>
+		<div class="scc-upcoming-side">
+			<h2 class="scc-upcoming-later">Programma</h2>
+			<ol class="scc-upcoming-next" data-upcoming-next>
+				{% for row in upcoming %}{% if not loop.first %}
+				<li class="scc-upcoming-next-row">
+					<time class="scc-list-date" datetime="{{ row.date }}">{{ row.day }} · {{ row.time }}</time>
+					<span class="scc-upcoming-next-match">{% for side in ['home', 'away'] %}<span{% if row[side] == 'SC Cambuur' %} data-cambuur{% endif %}>{{ row[side] }}</span>{% if loop.first %}&nbsp;– {% endif %}{% endfor %}</span>
+					<span class="scc-upcoming-next-meta"><span>{{ row.context }}</span></span>
+				</li>
+				{% endif %}{% endfor %}
+			</ol>
+		</div>
+	</section>
+
+	<div class="scc-register">
+		{% for groep in archief.groups %}
+		{% set st = groep.stats %}
+		<section class="scc-season" aria-labelledby="season-{{ loop.index }}">
+			<header class="scc-season-head">
+				<div>
+					<p class="scc-eyebrow font-mono text-[11px] leading-4 uppercase">Seizoen</p>
+					<h2 id="season-{{ loop.index }}" class="scc-season-title">{{ groep.title }}</h2>
+				</div>
+				<div class="scc-season-summary">
+					<p class="scc-season-tally">
+						<span class="scc-count" data-result="winst"><span>{{ groep.tally.wins }}</span> <span>W</span></span><span class="scc-count" data-result="gelijk"><span>{{ groep.tally.draws }}</span> <span>G</span></span><span class="scc-count" data-result="verlies"><span>{{ groep.tally.losses }}</span> <span>V</span></span>
+						<span class="scc-season-goals">{{ groep.tally.goalsFor }}–{{ groep.tally.goalsAgainst }}{% if groep.tally.leagueGames %} · {{ groep.tally.points }} pt{% endif %}</span>
+					</p>
+					{{ form(groep.form, "Vorm " + groep.title + ", oud naar nieuw") }}
+				</div>
+			</header>
+
+			<div class="scc-season-body">
+				{# Het seizoen in vier cijfers: naast de lijst, vanaf lg sticky. #}
+				<dl class="scc-season-stats">
+					<div class="scc-stat-card">
+						<dt class="font-mono text-[11px] leading-4 uppercase">Topscorer</dt>
+						{% if st.scorers.length %}
+						<dd class="scc-stat-big">{{ st.scorers[0].count }}</dd>
+						<dd class="scc-season-stat-name">{% for item in st.topScorers %}{{ item.name }}{% if loop.revindex == 2 %} en {% elif not loop.last %}, {% endif %}{% endfor %}</dd>
+						{% if st.nextScorers.length %}<dd class="scc-season-stat-more">Daarna {% for item in st.nextScorers %}{{ item.name }} {{ item.count }}{% if not loop.last %} · {% endif %}{% endfor %}</dd>{% endif %}
+						{% else %}<dd class="scc-stat-big">–</dd>{% endif %}
+					</div>
+					<div class="scc-stat-card">
+						<dt class="font-mono text-[11px] leading-4 uppercase">Hoogste gemiddelde</dt>
+						{% if st.ratings.length %}
+						<dd class="scc-season-rating">{{ rating(st.ratings[0].averageText, st.ratings[0].band, "lg") }}</dd>
+						<dd class="scc-season-stat-name">{{ st.ratings[0].name }}</dd>
+						<dd class="scc-season-stat-more">{{ st.ratings[0].count }} wedstrijden{% if st.ratings.length > 1 %} · daarna {{ st.ratings[1].name }} {{ st.ratings[1].averageText }}{% endif %}</dd>
+						{% else %}<dd class="scc-stat-big">–</dd>{% endif %}
+					</div>
+					<div class="scc-stat-card">
+						<dt class="font-mono text-[11px] leading-4 uppercase">De nul</dt>
+						<dd class="scc-stat-big">{{ st.cleanSheets }}</dd>
+						<dd class="scc-season-stat-name">{% if st.cleanSheets == 1 %}Wedstrijd{% else %}Wedstrijden{% endif %} zonder tegengoal</dd>
+						<dd class="scc-season-stat-more">Van de {{ groep.tally.played }}</dd>
+					</div>
+					<div class="scc-stat-card">
+						<dt class="font-mono text-[11px] leading-4 uppercase">Kaarten</dt>
+						<dd class="scc-season-cards"><span data-kind="yellow">{{ st.yellow }}</span><span data-kind="red">{{ st.red }}</span></dd>
+						<dd class="scc-season-stat-name">Geel en rood</dd>
+						<dd class="scc-season-stat-more">{{ (st.yellow / groep.tally.played) | round(1) | string | replace(".", ",") }} geel per wedstrijd</dd>
+					</div>
+				</dl>
+
+				<ol class="scc-rows">
+					{% for row in groep.rows %}
+					<li class="scc-row" data-row data-url="{{ row.url }}" data-result="{{ row.result }}"{% if row.cup %} data-cup="{{ 'door' if row.advanced else 'uit' }}"{% endif %}>
+						<a href="{{ row.url }}">
+							<time class="scc-row-date scc-list-date" datetime="{{ row.date }}">{{ row.day }}</time>
+							<span class="scc-row-opponent">{{ row.opponent }}{% if row.cup %} <span class="scc-row-cup">Beker · {% if row.advanced %}<b aria-hidden="true">✓</b> Door{% else %}<b aria-hidden="true">✗</b> Uit{% endif %}</span>{% endif %}</span>
+							<span class="scc-row-score scc-flap">{{ row.score }}</span>
+							<span class="sr-only">{{ row.result }}</span>
+							<span class="scc-row-result" aria-hidden="true">{{ row.letter }}</span>
+							{% if row.states.length %}<span class="scc-row-timeline" aria-hidden="true">{% for state in row.states %}<span data-state="{{ state.state }}" style="--start: {{ state.start }}%; --width: {{ state.width }}%"></span>{% endfor %}</span>{% endif %}
+						</a>
+					</li>
+					{% endfor %}
+				</ol>
+			</div>
+		</section>
+		{% endfor %}
+	</div>
+</main>

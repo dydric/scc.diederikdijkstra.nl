@@ -1,0 +1,104 @@
+/* Typografie van de mono-stijl voor wedstrijdpagina’s en het lokale design system.
+ *
+ * Drie fonts (base/fonts.css), elk een rol:
+ *   - font-sans, PP Neue Montreal: de standaard (op body, base/_.css), voor
+ *     lopende tekst en koppen.
+ *   - font-mono, JetBrains Mono: data, readouts, code, en tekst met
+ *     een teksteffect dat tekens verwisselt (decode, corrupt): elk teken even
+ *     breed, dus de regel verspringt niet.
+ *   - font-data, Space Mono: grotere data, klok en uitslagen.
+ *   - font-pixel: bestaande bordcellen in JetBrains Mono op 11, 22 en 33px.
+ *
+ * Het 8px-raster (base/grid.css): elke regelhoogte is een veelvoud van 8.
+ * Montreal en JetBrains Mono staan waar het kan op 11n px (11, 22, 33,
+ * 44, 66): daar is de kapitaalhoogte (0,715 en 0,73 em) ongeveer 8n px.
+ * De leesmaten wijken
+ * hiervan af: sm (14/24), base (16/24) en md (20/32). Het 8px-raster
+ * geldt voor hun regelhoogtes, niet voor de lettergrootte.
+ *
+ * Alleen de maten hieronder: die van Tailwind staan uit (--text-*: initial).
+ * Alles in hele pixels.
+ *
+ * De bestaande bordmaten blijven op 11, 22 en 33px, met regelhoogtes op
+ * het 8px-raster. Ze worden bij browserzoom afgerond via --dpr.
+ */
+@theme {
+	--font-sans: "PP Neue Montreal", "Helvetica Neue", Arial, sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+	--font-data: "Space Mono", "JetBrains Mono", ui-monospace, monospace;
+
+	--text-*: initial;
+
+	--text-xs: 11px;
+	--text-xs--line-height: 16px;
+	--text-sm: 14px;
+	--text-sm--line-height: 24px;
+	--text-base: 16px;
+	--text-base--line-height: 24px;
+	/* Lopende tekst in ruime tekstcontainers. */
+	--text-md: 20px;
+	--text-md--line-height: 32px;
+	--text-lg: 22px;
+	--text-lg--line-height: 32px;
+	--text-lg--letter-spacing: -0.01em;
+	--text-xl: 33px;
+	--text-xl--line-height: 40px;
+	--text-xl--letter-spacing: -0.02em;
+	--text-2xl: 44px;
+	--text-2xl--line-height: 48px;
+	--text-2xl--letter-spacing: -0.03em;
+	/* Korte titels in Montreal, zoals Basics: 6 × 11, regel op het raster. */
+	--text-3xl: 66px;
+	--text-3xl--line-height: 72px;
+	--text-3xl--letter-spacing: -0.04em;
+	/* Grote titels in de typografische leesproef; regelhoogte op 8px. */
+	--text-4xl: 88px;
+	--text-4xl--line-height: 96px;
+	--text-4xl--letter-spacing: -0.04em;
+	/* Display voor overzichten: 12 × 11, regel 120 (op 8px). */
+	--text-5xl: 132px;
+	--text-5xl--line-height: 120px;
+	--text-5xl--letter-spacing: -0.05em;
+
+	/* Gewichten, plus de grade van de modus (hieronder). */
+	--font-weight-thin: calc(100 + var(--weight-grade));
+	--font-weight-extralight: calc(200 + var(--weight-grade));
+	--font-weight-light: calc(300 + var(--weight-grade));
+	--font-weight-normal: calc(400 + var(--weight-grade));
+	--font-weight-medium: calc(500 + var(--weight-grade));
+	--font-weight-semibold: calc(600 + var(--weight-grade));
+	--font-weight-bold: calc(700 + var(--weight-grade));
+	--font-weight-extrabold: calc(800 + var(--weight-grade));
+	--font-weight-black: calc(900 + var(--weight-grade));
+
+	--text-pixel-1: calc(11px * max(1, round(1 * var(--dpr), 1)) / var(--dpr));
+	--text-pixel-1--line-height: 16px;
+	--text-pixel-1--letter-spacing: 0px;
+	--text-pixel-2: calc(11px * max(1, round(2 * var(--dpr), 1)) / var(--dpr));
+	--text-pixel-2--line-height: 24px;
+	--text-pixel-2--letter-spacing: calc(round(-1px * var(--dpr), 1px) / var(--dpr));
+	--text-pixel-3: calc(11px * max(1, round(3 * var(--dpr), 1)) / var(--dpr));
+	--text-pixel-3--line-height: 40px;
+	--text-pixel-3--letter-spacing: calc(round(-1px * var(--dpr), 1px) / var(--dpr));
+
+}
+
+/* De grade: in licht een fractie zwaarder dan in donker. Lichte tekst op
+   donker lijkt vanzelf dikker (irradiatie: het licht straalt uit in het
+   donker), donkere tekst op licht dunner, en antialiased (base/_.css)
+   haalt de verdikking van macOS weg. Montreal en JetBrains Mono zijn
+   variabel, dus elk gewicht krijgt er in licht --weight-grade bij (de
+   tokens hierboven); zo voelt semibold in beide modi hetzelfde. Donker is
+   de maat (0). */
+:root {
+	/* Alleen donker, maar alles een fractie zwaarder: op verzoek dikkere,
+	   opvallendere tekst. */
+	--weight-grade: 40;
+}
+
+/* De schaal van het scherm (devicePixelRatio), gezet en bijgehouden door het
+   script in layouts/base.njk. Zonder JavaScript 1: dan zijn de pixelmaten
+   precies 11, 22 en 33px. */
+:root {
+	--dpr: 1;
+}

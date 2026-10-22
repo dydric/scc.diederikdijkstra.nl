@@ -1,0 +1,67 @@
+---
+title: Voetbalgras
+grid: false
+---
+{% asset "scc" %}
+{% asset "scc-ui" %}
+{% asset "scc-turf" %}
+{% asset "system-grass" %}
+{% from "scc/ui.njk" import board with context %}
+{% from "scc/preview.njk" import teamContext, prediction %}
+{% set first = upcoming[0] %}
+{% set wedstrijd = collections.scc | last %}
+{% set view = wedstrijd | sccMatchView %}
+<div class="grass-lab">
+  <p class="grass-intro">Avondwedstrijd. Kort gemaaid gras, banen van de maaier en de lijnen van een voetbalveld. Een stil veld onder stadionlicht, met de wedstrijd op de voorgrond. Het licht valt vanachter de timeline op het veld en komt bij het eerste bezoek zacht op. De aftraptijd bepaalt of het avond is, met stadionlicht, of middag, met de schaduw van de tribune.</p>
+  <div class="grass-controls" hidden aria-label="Grasproef instellen">
+    <button type="button" data-grass-toggle aria-pressed="true">Gras aan</button>
+    <button type="button" data-grass-height aria-pressed="false">Hoogtetest: extra doelpunten</button>
+    <button type="button" data-grass-lights aria-pressed="true">Stadionlicht aan</button>
+    <button type="button" data-grass-moment>Lichtmoment: automatisch</button>
+    <button type="button" data-grass-replay>Licht opnieuw</button>
+    <label for="grass-light">Veldverlichting <input id="grass-light" type="range" min="65" max="135" value="100"></label>
+    <p data-grass-status role="status">Statisch veld · lokale ontwerpstudie</p>
+  </div>
+  <section aria-labelledby="grass-home">
+    <h2 id="grass-home" class="grass-section-title">01 / Home · volgende wedstrijd</h2>
+    <div class="grass-example">
+		<div class="scc-upcoming-main scc-turf" data-turf="proef-home" data-kickoff="{{ first.date if first }}">
+			{{ prediction(first) }}
+			<p class="scc-upcoming-head scc-term">
+				<span class="scc-term-prompt" aria-hidden="true">&gt;</span><span>Volgende wedstrijd</span><span class="scc-term-cursor" aria-hidden="true"></span><span class="scc-upcoming-context" data-upcoming-context{% if not first %} hidden{% endif %}>{{ first.context if first }}</span>
+			</p>
+			<div class="scc-upcoming-stage" data-upcoming-stage{% if not first %} hidden{% endif %}>
+				<span class="scc-upcoming-when" data-upcoming-when{% if not first %} hidden{% endif %}><time data-upcoming-date datetime="{{ first.date if first }}">{{ first.day if first }}</time><span aria-hidden="true">·</span><time data-upcoming-time>{{ first.time if first }}</time></span>
+				<div class="scc-upcoming-teams"{% if first.home.length > 11 or first.away.length > 11 %} data-long-names{% endif %}>
+					{% for side in ['home', 'away'] %}
+					<div class="scc-preview-team" data-side="{{ side }}">
+						<span class="scc-preview-side">{{ "Thuis" if side == "home" else "Uit" }}</span>
+						<p class="scc-upcoming-name" data-upcoming-{{ side }}{% if first and first[side] == "SC Cambuur" %} data-cambuur{% endif %}>{{ first[side] if first }}</p>
+						<div data-preview-team="{{ side }}">{% if first %}{{ teamContext(first.preview[side]) }}{% endif %}</div>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="scc-upcoming-countdown" data-upcoming-countdown role="timer" hidden>
+					<span class="scc-upcoming-countdown-label" aria-hidden="true">Aftrap over</span>
+					<span class="scc-upcoming-clock" data-upcoming-clock>
+						{%- for unit in [["days", "dagen"], ["hours", "uur"], ["minutes", "min"], ["seconds", "sec"]] %}
+						<span class="scc-upcoming-unit"><span data-unit="{{ unit[0] }}"></span><span class="font-mono text-[11px] leading-4 uppercase" aria-hidden="true">{{ unit[1] }}</span></span>
+						{%- endfor %}
+					</span>
+				</div>
+				<p class="scc-preview-note" data-preview-standings-date>{% if first.preview.standingsAt %}Stand bijgewerkt {{ first.preview.standingsUpdated }}{% endif %}</p>
+
+			</div>
+			<p class="scc-upcoming-empty" data-upcoming-empty{% if first %} hidden{% endif %}>Nog geen wedstrijden gepland.</p>
+		</div>
+    </div>
+  </section>
+  <section aria-labelledby="grass-detail">
+    <h2 id="grass-detail" class="grass-section-title">02 / Detail · gespeelde wedstrijd</h2>
+    <p data-grass-height-note hidden>Hoogtetest: doelpuntregels zijn herhaald. Dit is geen echte wedstrijduitslag.</p>
+    <div class="grass-example">
+      {{ board(wedstrijd.data, view, view.story, false, "proef-detail") }}
+    </div>
+  </section>
+  <p class="grass-intro">Vergelijking voor beide hero’s; home en de wedstrijdpagina’s gebruiken hetzelfde veld (js/modules/scc/turf.js, css/components/scc-turf.css). Het veld blijft stil. Bij hoge hero’s wordt het veld aan de zijkanten bijgesneden; er komt geen extra gras boven of onder. Met ‘Gras uit’ zie je het eerdere ontwerp zonder veld.</p>
+</div>

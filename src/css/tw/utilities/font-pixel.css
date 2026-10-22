@@ -1,0 +1,7 @@
+/* Monobrede kapitalen voor bestaande bordcellen. De naam blijft behouden
+ * zolang ticker en dock deze maatvoering gebruiken. */
+
+@utility font-pixel {
+	font-family: "JetBrains Mono", ui-monospace, monospace;
+	@apply uppercase;
+}

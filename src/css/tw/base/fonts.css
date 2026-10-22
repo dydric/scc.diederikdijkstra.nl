@@ -1,0 +1,54 @@
+/* De fonts:
+ *   - PP Neue Montreal (Pangram Pangram, gekocht), variabel: gewicht 200
+ *     t/m 800 en een as "ital" (100 t/m 900) voor cursief. Uit netlify/v26.
+ *   - JetBrains Mono 2.304, de variabele TTF's uit de release op
+ *     github.com/JetBrains/JetBrainsMono (fonts/variable), met fontTools
+ *     zonder verlies omgezet naar woff2 (niet de woff2 uit fonts/webfonts
+ *     op master, 2.305: daarin werken de ligaturen in Chrome niet; en niet
+ *     de NL-variant: die heeft geen ligaturen). OFL, ernaast.
+ *   - Space Mono Regular en Bold (Google Fonts), OFL (ernaast in
+ *     assets/fonts/): monobrede data, labels en displaycijfers.
+ * De kapitaalhoogte van Montreal (0,715 em) en JetBrains Mono (0,73 em) is
+ * op 11, 22 en 33px ongeveer 8, 16 en 24px.
+ */
+@layer base {
+	@font-face {
+		font-display: swap;
+		font-family: "PP Neue Montreal";
+		font-style: normal;
+		font-weight: 200 800;
+		src: url("../assets/fonts/PPNeueMontreal-Variable.woff2") format("woff2");
+	}
+
+	@font-face {
+		font-display: swap;
+		font-family: "JetBrains Mono";
+		font-style: normal;
+		font-weight: 100 800;
+		src: url("../assets/fonts/JetBrainsMono-Variable.woff2") format("woff2");
+	}
+
+	@font-face {
+		font-display: swap;
+		font-family: "JetBrains Mono";
+		font-style: italic;
+		font-weight: 100 800;
+		src: url("../assets/fonts/JetBrainsMono-Italic-Variable.woff2") format("woff2");
+	}
+
+	@font-face {
+		font-display: swap;
+		font-family: "Space Mono";
+		font-style: normal;
+		font-weight: 400;
+		src: url("../assets/fonts/SpaceMono-Regular.woff2") format("woff2");
+	}
+
+	@font-face {
+		font-display: swap;
+		font-family: "Space Mono";
+		font-style: normal;
+		font-weight: 700;
+		src: url("../assets/fonts/SpaceMono-Bold.woff2") format("woff2");
+	}
+}

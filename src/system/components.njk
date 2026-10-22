@@ -1,0 +1,108 @@
+---
+title: Components
+---
+{% asset "scc" %}
+{% asset "scc-ui" %}
+{% asset "scc-match" %}
+{% from "system/usage.njk" import code, inlineCode, source with context %}
+{% from "scc/ui.njk" import chip, flap, flapText, score, rating, result, form, board, strip, facts, ledScore, lineupList, goals, stats, pitch, ratings, legend, profile with context %}
+{# Echte data: de laatste wedstrijd in de collectie, en het hele archief. #}
+{% set wedstrijd = collections.scc | last %}
+{% set data = wedstrijd.data %}
+{% set view = wedstrijd | sccMatchView %}
+{% set story = view.story %}
+{% set archief = collections.scc | sccArchive %}
+
+{% macro block(number, id, title, intro, files) %}
+<section class="system-section type-container" aria-labelledby="{{ id }}">
+	<header class="system-section-heading type-container">
+		<p class="font-mono text-xs uppercase text-fg/60">{{ number }}</p>
+		<h2 id="{{ id }}" class="type-h2">{{ title }}</h2>
+		<p class="type-small mt-2 max-w-64">{{ intro | safe }}</p>
+	</header>
+	<div class="system-section-content type-container">
+		{{ caller() }}
+		{{ source(files) }}
+	</div>
+</section>
+{% endmacro %}
+
+{% call block("00 / Basis", "base-title", "Primitieven en tonen", "Kaart, label, chip, cijfertegel, meter, terminalregel en klaptegels. Kleur betekent overal hetzelfde: <code>data-tone</code> pos (gunstig), neutral, neg (ongunstig), scc (Cambuur), info, muted en ink. <code>data-result</code> en <code>data-state</code> gebruiken dezelfde variabelen.", ["includes/partials/scc/ui.njk · chip", "css/components/scc-ui.css · Tonen, Primitieven"]) %}
+	<div class="flex flex-wrap gap-2">
+		{% for tone in ["pos", "neutral", "neg", "scc", "info", "muted", "ink"] %}{{ chip(tone, tone) }}{% endfor %}
+		<span class="scc-chip" data-result="winst">Winst</span><span class="scc-chip" data-result="gelijk">Gelijkspel</span><span class="scc-chip" data-result="verlies">Verlies</span>
+	</div>
+	<div class="grid gap-3 sm:grid-cols-3">
+		{% for tone, value, label in [["pos", "58%", "Balbezit"], ["neutral", "1,53", "Kansen (xG)"], ["neg", "3/18", "Op doel"]] %}
+		<div class="scc-stat-card" data-tone="{{ tone }}">
+			<p class="scc-eyebrow">{{ label }}</p>
+			<p class="scc-stat-big">{{ value }}</p>
+			<p class="scc-fact-sub">data-tone="{{ tone }}"</p>
+			<span class="scc-meter" style="--value: 58%"><i></i></span>
+		</div>
+		{% endfor %}
+	</div>
+	<p class="scc-term"><span class="scc-term-prompt">&gt;</span><span>Volgende wedstrijd</span><span class="scc-term-cursor"></span></p>
+	<div class="flex flex-wrap items-center gap-6">{{ flapText("ZA 24 OKT") }}{{ flapText("18:45") }}<span class="text-[88px]">{{ flap(2) }}</span></div>
+	{{ code([["NJK", '{{ flapText("18:45") }}\n{{ flap(2) }} // grootte via de ouder, bijvoorbeeld text-[88px]\n<p class="scc-term"><span class="scc-term-prompt">&gt;</span>…<span class="scc-term-cursor"></span></p>']]) }}
+	{{ code([["NJK", '{{ chip("Effectief", "pos") }}\n<div class="scc-stat-card" data-tone="neg">…</div>']]) }}
+{% endcall %}
+
+{% call block("01 / Uitslag", "score-title", "Score", "Space Mono Bold. Elk cijfer los, zodat het kan rollen.", ["includes/partials/scc/ui.njk · score"]) %}
+	<div class="flex flex-wrap items-end gap-12">
+		{% for size in ["text-[44px]", "text-[66px]", "text-[96px]", "text-[128px]"] %}
+		<div class="grid gap-2">
+			{{ inlineCode(size, "justify-self-start") }}
+			<div>{{ score(data.score.home, data.score.away, size) }}</div>
+		</div>
+		{% endfor %}
+	</div>
+	{{ code([["NJK", '{% from "scc/ui.njk" import score with context %}\n{{ score(2, 1, "text-[96px]") }}']]) }}
+{% endcall %}
+
+{% call block("02 / Cijfer", "rating-title", "Rapportcijfer", "Vijf banden, van rood via oranje, limoen en neongroen naar blauw. De band volgt het afgeronde cijfer: 5,96 is 6,0 en dus krap voldoende.", ["includes/partials/scc/ui.njk · rating, legend", "lib/scc-match-story.js · RATING_BANDS", "css/tw/theme/colors.css · --rating-*"]) %}
+	{{ legend() }}
+	<div class="flex flex-wrap items-center gap-6">
+		{% for value, band in [["5,2", "onvoldoende"], ["6,1", "krap"], ["6,7", "voldoende"], ["7,4", "goed"], ["8,6", "uitblinker"], ["–", null]] %}
+		<span class="flex items-center gap-2">{{ rating(value, band, "sm") }}{{ rating(value, band, "md") }}</span>
+		{% endfor %}
+		{{ rating("8,6", "uitblinker", "lg") }}
+	</div>
+	{{ code([["NJK", '{{ rating(player.ratingText, player.band, "md") }} // sm, md of lg']]) }}
+{% endcall %}
+
+{% call block("03 / Vorm", "form-title", "Uitslag en vorm", "W, G en V in hun uitslagkleur. De strook loopt van oud naar nieuw.", ["includes/partials/scc/ui.njk · result, form", "lib/scc-archive.js"]) %}
+	<div class="flex gap-4">{{ result("W", "winst") }}{{ result("G", "gelijk") }}{{ result("V", "verlies") }}</div>
+	{% for groep in archief.groups %}
+	<div class="grid gap-2"><p class="scc-eyebrow">{{ groep.title }}</p>{{ form(groep.form) }}</div>
+	{% endfor %}
+{% endcall %}
+
+{% call block("04 / Scorebord", "board-title", "Bord en verloop", "De scorekaart met het statische verloop als bovenrand: een balk met standkleuren en gloed, minuten en twee compacte ploegbanen met balletjes, kaarten en VAR eronder. Hover of klik toont de details. Datum en aftrap staan gecentreerd boven de vaste uitslag. Dan de kerncijfers als tegels met een toon, en een uitslag als chip.", ["includes/partials/scc/ui.njk · board, strip, goals", "js/components/scc-match.js"]) %}
+	<div class="grid gap-8">
+		{{ board(data, view, story, false) }}
+		{{ facts(story, data, view) }}
+		<div class="flex gap-4">{{ ledScore(2, 1) }}{{ ledScore(10, 0) }}</div>
+		{{ goals(story, data) }}
+	</div>
+	{{ code([["NJK", '{{ board(data, view, story) }} // heading: false buiten de hero\n{{ strip(story, data) }}']]) }}
+{% endcall %}
+
+{% call block("05 / Vergelijking", "stats-title", "Teamcijfers", "Per rij label, thuis, gespiegelde balken en uit. Wie voorstaat krijgt de volle kleur (Cambuur geel, de tegenstander grijs); de ander zakt weg.", ["includes/partials/scc/ui.njk · stats"]) %}
+	{{ stats(story.teamStats, data, story.side) }}
+{% endcall %}
+
+{% call block("06 / Elftallen", "pitch-title", "Veld en cijfers", "Twee groene speelhelften, één per ploeg, met de basiself als rugnummers met het cijfer ernaast en iconen voor goal, kaart, in en uit: het doel onderaan, de middellijn bovenaan, beide ploegen vallen omhoog aan; Cambuur zwart, de tegenstander wit. Daaronder per ploeg dezelfde tabel met invallers; een speler opent zijn rij, die als accordion openklapt. Zonder veldplekken de basiself per linie.", ["includes/partials/scc/ui.njk · pitch, ratings"]) %}
+	{% set cambuur = story.pitch | selectattr("cambuur") | first %}
+	{% set opponent = story.pitch | rejectattr("cambuur") | first %}
+	<div class="scc-lineup">
+		{{ pitch(story.pitch | selectattr("complete")) }}{{ legend() }}
+		<div class="scc-lineup-teams">{{ ratings(cambuur) }}{% if opponent %}{{ ratings(opponent) }}{% endif %}</div>
+	</div>
+	<p class="scc-eyebrow">Zonder veldplekken</p>
+	{{ lineupList(cambuur) }}
+{% endcall %}
+
+{% call block("07 / Archief", "profile-title", "Profiel", "Per kwartier: voor Cambuur groen omhoog, tegen rood omlaag.", ["includes/partials/scc/ui.njk · profile", "lib/scc-archive.js"]) %}
+	{{ profile(archief.profile) }}
+{% endcall %}

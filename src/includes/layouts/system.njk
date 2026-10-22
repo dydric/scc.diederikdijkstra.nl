@@ -1,0 +1,20 @@
+---
+layout: base
+---
+{% asset "code" %}
+{% asset "system" %}
+<main class="system-workspace{% if typographyContainer %} type-container{% endif %}">
+	<nav class="system-review-nav" aria-label="Design system pages">
+		<a href="/system/"{% if page.url == "/system/" %} aria-current="page"{% endif %}>Basics</a>
+		<a href="/system/typography/"{% if page.url == "/system/typography/" %} aria-current="page"{% endif %}>Typography</a>
+		<a href="/system/components/"{% if page.url == "/system/components/" %} aria-current="page"{% endif %}>Components</a>
+		<a href="/system/grass/"{% if page.url == "/system/grass/" %} aria-current="page"{% endif %}>Voetbalgras</a>
+	</nav>
+	<header class="system-heading type-container">
+		<p class="font-mono text-xs uppercase text-fg/60">Design system</p>
+		<h1 class="{{ headingClass or 'type-h1' }}">{{ title }}</h1>
+	</header>
+	<div class="system-body">
+		{{ content | safe }}
+	</div>
+</main>

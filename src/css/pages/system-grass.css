@@ -1,0 +1,25 @@
+@reference "../tw/tw.css";
+
+/* Uitsluitend de lokale vergelijking; het veld zelf staat in
+   css/components/scc-turf.css en wordt ook op home en de wedstrijdpagina's gebruikt. */
+.grass-lab { display: grid; gap: 48px; padding-bottom: 96px; }
+.grass-intro { max-width: 720px; font-size: 18px; line-height: 1.6; }
+.grass-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; font: 12px/24px var(--font-mono); }
+.grass-controls button { border: 1px solid var(--line); padding: 8px 16px; cursor: pointer; }
+.grass-controls button[aria-pressed="true"] { background: var(--fg); color: var(--page-bg); }
+.grass-controls label { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.grass-controls input { accent-color: #759c46; width: 128px; }
+.grass-controls :focus-visible { outline: 2px solid #9fc777; outline-offset: 4px; }
+.grass-controls [role="status"] { flex-basis: 100%; opacity: .65; }
+.grass-controls[hidden] { display: none; }
+.grass-controls button:disabled { opacity: .5; cursor: default; }
+.grass-section-title { margin-bottom: 16px; font: 12px/24px var(--font-mono); text-transform: uppercase; }
+
+/* Het kader om elk voorbeeld, zoals de panelen op de echte pagina's. */
+.grass-example { overflow: hidden; border-radius: var(--radius); box-shadow: 0 0 0 1px var(--line), 0 24px 64px #0002; }
+/* ‘Gras uit’: zonder veldklasse verdwijnt ook het canvas. */
+.grass-example :not(.scc-turf) > .scc-turf-canvas { display: none; }
+
+/* De systeempagina geeft secties een bovenmarge; de timelinerijen in het
+   bord horen direct onder de standkleur te hangen, zoals op detailpagina's. */
+.grass-example .scc-board section > * + * { margin-top: 0; }

@@ -1,0 +1,37 @@
+{% from "system/usage.njk" import inlineCode with context %}
+{# Gedeelde kleurentabel voor Basics, Grid en Code. #}
+{% macro colorTable(rows, labels = false) %}
+<table class="system-color-table" role="table">
+	<thead role="rowgroup">
+		<tr role="row">
+			<th scope="col" role="columnheader">Kleur / gebruik</th>
+			<th scope="col" role="columnheader">Normale modus</th>
+			<th scope="col" role="columnheader">Darkmode</th>
+			<th scope="col" role="columnheader">Variabele</th>
+		</tr>
+	</thead>
+	<tbody role="rowgroup">
+		{% for color in rows %}
+		{% set token = color[2] %}
+		{% if labels %}{% set token = "--color-code-" + (color[0] | lower) %}{% endif %}
+		<tr role="row">
+			<th scope="row" role="rowheader">
+				<p class="type-h5">{{ color[0] }}</p>
+				{% if not labels %}<p class="system-color-description">{{ color[5] }}</p>{% endif %}
+			</th>
+			{% for mode in ["light", "dark"] %}
+			<td role="cell" class="system-color-cell">
+				<div class="system-color-mode" data-mode="{{ mode }}">
+					<p class="font-mono text-xs uppercase text-fg/60 lg:hidden">{% if mode == "light" %}Normale modus{% else %}Darkmode{% endif %}</p>
+					{% set modeName = "Normale modus" if mode == "light" else "Darkmode" %}
+					{% set value = (color[2] if mode == "light" else color[3]) if labels else (color[3] if mode == "light" else color[4]) %}
+					<div class="system-swatch" style="--swatch-color: var({{ token }})" data-color-token="{{ token }}" data-color-mode="{{ modeName }}" role="img" title="{{ token }} · {{ modeName }}: {{ value }}" aria-label="{{ token }} · {{ modeName }}: {{ value }}"></div>
+				</div>
+			</td>
+			{% endfor %}
+			<td role="cell" class="system-color-token">{{ inlineCode(token) }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endmacro %}

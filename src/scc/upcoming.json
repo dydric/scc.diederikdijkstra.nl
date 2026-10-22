@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-20T14:08:11.551Z",
+  "fixtures": [
+    {
+      "date": "2026-10-24T18:45:00+02:00",
+      "home": "Willem II",
+      "away": "SC Cambuur",
+      "competition": "Eredivisie",
+      "round": 10
+    },
+    {
+      "date": "2026-10-27T20:00:00+01:00",
+      "home": "VV Kloetinge",
+      "away": "SC Cambuur",
+      "competition": "KNVB Beker",
+      "round": null
+    },
+    {
+      "date": "2026-10-31T21:00:00+01:00",
+      "home": "SC Cambuur",
+      "away": "Go Ahead Eagles",
+      "competition": "Eredivisie",
+      "round": 11
+    },
+    {
+      "date": "2026-11-08T16:45:00+01:00",
+      "home": "SC Cambuur",
+      "away": "PSV",
+      "competition": "Eredivisie",
+      "round": 12
+    },
+    {
+      "date": "2026-11-21T18:45:00+01:00",
+      "home": "FC Utrecht",
+      "away": "SC Cambuur",
+      "competition": "Eredivisie",
+      "round": 13
+    }
+  ]
+}

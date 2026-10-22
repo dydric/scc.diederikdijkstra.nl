@@ -1,0 +1,45 @@
+/* De scrollbalk. Het document scrollt zelf, dus fixed elementen rekenen
+   al zonder de balk. */
+@layer base {
+
+	/* Reserveer de scrollbar-strook altijd, op elke pagina. Zo verandert de
+	   contentbreedte nooit tussen korte en lange pagina's, of terwijl content
+	   laadt: er verspringt niets als de balk verschijnt
+	   (--container-page, theme/layout.css). */
+	html {
+		scrollbar-gutter: stable;
+	}
+
+	/* Het scheidingslijntje links van de scrollbalk hoort bij de *strook*, niet
+	   bij de track: op een korte pagina bestaat er geen track (alleen de lege
+	   gutter) en dan zou een border op ::-webkit-scrollbar-track verdwijnen.
+	   Daarom tekenen we de lijn zelf, fixed op de binnenrand van de gutter
+	   (right-0: het viewport van fixed elementen houdt op bij de scrollbalk).
+	   Op html, niet op body: body is een container (base/_.css).
+	   Alleen voor webkit: daar hebben we een custom scrollbar met strook;
+	   Firefox rendert zijn eigen smalle overlay-balk. */
+	@supports selector(::-webkit-scrollbar) {
+		html::after {
+			@apply fixed inset-y-0 right-0 w-px z-46 pointer-events-none bg-(--sb-border-color);
+			content: "";
+		}
+	}
+
+	html::-webkit-scrollbar {
+		width: var(--sb-size);
+	}
+
+	html::-webkit-scrollbar-track {
+		@apply rounded-none bg-(--sb-track-color);
+	}
+
+	html::-webkit-scrollbar-thumb {
+		@apply rounded-none bg-(--sb-thumb-color);
+	}
+
+	@supports not selector(::-webkit-scrollbar) {
+		html {
+			scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+		}
+	}
+}

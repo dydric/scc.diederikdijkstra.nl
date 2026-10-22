@@ -1,0 +1,22 @@
+{% macro formStrip(value) %}
+<span class="scc-preview-form" aria-label="Laatste {{ value.length }} competitiewedstrijden, oud naar nieuw">
+{% for letter in value %}<span data-result="{{ 'winst' if letter == 'W' else ('gelijk' if letter == 'D' else 'verlies') }}" title="{{ 'Gewonnen' if letter == 'W' else ('Gelijk' if letter == 'D' else 'Verloren') }}">{{ 'G' if letter == 'D' else ('V' if letter == 'L' else 'W') }}</span>{% endfor %}
+</span>
+{% endmacro %}
+
+{% macro teamContext(team) %}
+{% if team.rank != null %}<p class="scc-preview-standing">{{ team.rank }}e · {{ team.points }} punten · {{ team.played }} gespeeld</p>{% endif %}
+{% if team.form %}{{ formStrip(team.form) }}{% else %}<p class="scc-preview-note">Vorm niet beschikbaar</p>{% endif %}
+{% endmacro %}
+
+{% macro prediction(row) %}
+{% set p = row.preview.prediction %}
+<div class="scc-preview-prediction" data-preview-prediction{% if not p %} hidden{% endif %}>
+	<div class="scc-preview-bar" data-preview-bar aria-hidden="true">{% for side in ['home', 'draw', 'away'] %}<span data-side="{{ side }}"{% if side != 'draw' and row[side] == 'SC Cambuur' %} data-cambuur{% endif %} style="width: {{ p[side] if p else 0 }}%"></span>{% endfor %}</div>
+	<div class="scc-preview-chances" data-preview-chances>
+	{% for side in ['home', 'draw', 'away'] %}
+		<div><span class="sr-only">{{ 'Gelijk' if side == 'draw' else row[side] }} </span><strong>{{ p[side] if p }}%</strong></div>
+	{% endfor %}
+	</div>
+</div>
+{% endmacro %}

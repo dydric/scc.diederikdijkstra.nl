@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 750">
+  <defs>
+    <pattern id="mow" width="190" height="750" patternUnits="userSpaceOnUse"><path fill="#28582d" d="M0 0h95v750H0z"/><path fill="#326336" d="M95 0h95v750H95z"/></pattern>
+    <filter id="grass"><feTurbulence type="fractalNoise" baseFrequency=".7 .3" numOctaves="3" seed="26"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+  </defs>
+  <path fill="url(#mow)" filter="url(#grass)" d="M0 0h1120v750H0z"/>
+  <g stroke="#b9cba9" opacity=".33" stroke-width="1.4" fill="none">
+    <path d="M35 35h1050v680H35zM560 35v680M35 173.5h165v403H35M1085 173.5H920v403h165M35 283.5h55v183H35M1085 283.5h-55v183h55"/>
+    <circle cx="560" cy="375" r="91.5"/>
+    <path d="M200 302a91.5 91.5 0 0 1 0 146M920 302a91.5 91.5 0 0 0 0 146"/>
+  </g>
+  <g fill="#b9cba9" opacity=".4"><circle cx="560" cy="375" r="2"/><circle cx="145" cy="375" r="2"/><circle cx="975" cy="375" r="2"/></g>
+</svg>

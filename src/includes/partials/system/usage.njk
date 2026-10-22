@@ -1,0 +1,96 @@
+{# Bouwstenen voor de pagina's van het design system (src/system/).
+
+   usage: hoe je een stijl gebruikt, als HTML-attribuut en als CSS (@apply),
+   onder elkaar, elk met een kopieerknop (js/components/copy.js). classes
+   is de class-lijst.
+
+   snippet: code met een label (NJK, HTML, JS) en een kopieerknop. Wat op
+   een regel na " // " staat is commentaar: gedimd, en kopiëren laat het
+   weg (data-copy-skip), want in Nunjucks bestaat // niet. Meer
+   onder elkaar in een div.system-snippets. Nunjucks als tekst: in een
+   {% set %} met {% raw %} eromheen, dan voert hij niets uit.
+
+   options: de opties van een onderdeel, elk als kant-en-klare code over de
+   hele breedte, met de uitleg eronder. rows is een lijst van [label,
+   code, uitleg]; code is een gewone string (die voert Nunjucks niet
+   uit), uitleg mag HTML en mag weg: alleen als hij iets toevoegt.
+
+   code: codeblokken direct onder elkaar, zonder uitleg; rows is een
+   lijst van [label, code]. Voor de import en de aanroep, die met alle
+   parameters bij naam, elk op een eigen regel, ingevuld zoals het
+   voorbeeld en met de keuzes erachter als commentaar (" // ").
+
+   inlineCode: een losse variabele, class of korte codewaarde, met optioneel
+   een extra layoutclass. De macro meldt de gedeelde code-asset aan.
+
+   source: de bestanden waar een onderdeel vandaan komt, onder elkaar;
+   class voor wat er nog bij moet. De ruimte erom komt
+   van de flow (css/pages/system.css), direct onder een kop minder. #}
+{% macro usage(classes) %}
+<div class="system-snippets mt-4">
+	{{ snippet("HTML", "class=\"" + classes + "\"") }}
+	{{ snippet("CSS", "@apply " + classes + ";") }}
+</div>
+{% endmacro %}
+
+{% macro snippet(label, code) %}
+{% asset "code" %}
+{% asset "copy" %}
+{# min-w-0: anders rekt een grid- of flexkolom op tot de langste regel en
+   scrollt de hele pagina. Lange code breekt af (eerst op spaties) in plaats
+   van te scrollen; kopiëren geeft de regel zoals hij is. De opmaak
+   (thema, label per taal, hoogte op 8px) staat in css/components/code.css. #}
+<div class="system-snippet">
+	<span class="system-snippet-label" data-lang="{{ label | lower }}">{{ label }}</span>
+	<pre class="font-mono min-w-0 flex-1 whitespace-pre-wrap wrap-break-word"><code data-copy-source>
+	{%- for line in code.split("\n") -%}
+	{%- set at = line.indexOf(" // ") -%}
+	{%- if at > -1 -%}{{ line.slice(0, at) | escape }}<span class="text-fg/50" data-copy-skip>{{ line.slice(at) | escape }}</span>{%- else -%}{{ line | escape }}{%- endif -%}
+	{%- if not loop.last %}{{ "\n" }}{% endif -%}
+	{%- endfor -%}
+	</code></pre>
+	<button type="button" class="system-snippet-copy" data-copy hidden>Copy</button>
+</div>
+{% endmacro %}
+
+{% macro options(rows) %}
+<div class="system-options">
+	{% for row in rows %}
+	<div class="system-option">
+		{{ snippet(row[0], row[1]) }}
+		{% if row[2] %}<p>{{ row[2] | safe }}</p>{% endif %}
+	</div>
+	{% endfor %}
+</div>
+{% endmacro %}
+
+{# Onder elkaar. #}
+{% macro files(list) %}
+<ul class="grid">{% for file in list %}<li><code>{{ file }}</code></li>{% endfor %}</ul>
+{% endmacro %}
+
+{% macro code(rows) %}
+<div class="system-snippets">
+	{% for row in rows %}{{ snippet(row[0], row[1]) }}{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro source(list, class = "") %}
+{% asset "code" %}
+<div class="system-source {{ class }}">{{ files(list) }}</div>
+{% endmacro %}
+
+{# Een korte waarde met dezelfde kopieerlogica als een codeblok. #}
+{% macro copyItem(value) %}
+{% asset "code" %}
+{% asset "copy" %}
+<span class="system-copy-item">
+	<code data-copy-source>{{ value | escape }}</code>
+	<button type="button" class="system-snippet-copy" data-copy hidden>Copy</button>
+</span>
+{% endmacro %}
+
+{# Losse code: dezelfde variant als gewone <code> in HTML en Markdown. #}
+{% macro inlineCode(value, class = "") -%}
+{% asset "code" %}<code class="system-code{% if class %} {{ class }}{% endif %}">{{ value | escape }}</code>
+{%- endmacro %}
