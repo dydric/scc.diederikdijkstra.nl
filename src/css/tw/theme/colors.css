@@ -9,8 +9,7 @@
 	--color-grid-accent: var(--grid-accent);
 	--color-grid-value: var(--grid-value-bg);
 
-	/* Een melding (de ticker, css/components/ticker.css): rood, altijd,
-	   op zwart (in het donker op wit). Hetzelfde rood als het accent van het raster in het donker. */
+	/* Een melding: rood. Hetzelfde rood als het accent van het raster in het donker. */
 	--color-warn: #e8341c;
 
 	/* Lijnen in het design system (tabellen, voorbeelden): de tekstkleur op
@@ -67,11 +66,13 @@
 	   witte Space Mono. */
 	--flap-bg: #222225;
 
-	/* Scrollbalk (base/scrollbar.css): de balk in de tekstkleur, de strook
-	   in de paginakleur met een lijntje ervoor. */
+	/* Scrollbalk (base/scrollbar.css): een gedempte balk als de tegels
+	   (--flap-bg, iets lichter), Cambuurgeel onder de muis; de strook in de
+	   paginakleur met een haarlijn ervoor. */
 	--sb-track-color: var(--page-bg);
-	--sb-thumb-color: var(--fg);
-	--sb-border-color: color-mix(in oklab, var(--fg) 15%, transparent);
+	--sb-thumb-color: color-mix(in oklab, var(--fg) 22%, var(--page-bg));
+	--sb-thumb-hover: var(--scc);
+	--sb-border-color: var(--line);
 
 	/* Het raster (base/grid.css, js/modules/site/grid.js): de lijnen in de
 	   tekstkleur met een kleine alpha, de paginaranden en de liniaal in het

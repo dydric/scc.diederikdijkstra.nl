@@ -16,7 +16,8 @@
    (winst, gelijk, verlies) en data-state (voor, gelijk, achter) vallen
    daarop terug. Zo betekent een kleur overal hetzelfde.
 
-   siteHeader  merk en navigatie bovenaan elke pagina
+   siteHeader  het logo bovenaan elke pagina, naar het overzicht
+   matchPager  vaste balk onderaan: vorige, overzicht, volgende
    chip        een label met tekst in een toon
    flap        één klaptegel (een getal, ook rollend)
    flapText    een korte tekst, elk teken in een klaptegel
@@ -41,17 +42,40 @@
    form        de vorm als strook blokjes, oud naar nieuw
    profile     wanneer de goals vallen, per kwartier, voor en tegen #}
 
-{% macro siteHeader(around = null) %}
+{#- Bovenaan alleen het logo, gecentreerd; het brengt je naar het overzicht.
+    Vorige en volgende staan op de wedstrijdpagina's in de vaste balk
+    onderaan (matchPager). #}
+{% macro siteHeader() %}
 <header class="scc-site-header">
-	<a class="scc-brand" href="/"><span class="scc-brand-mark" aria-hidden="true"></span><span>SC Cambuur</span><span class="scc-brand-sub">Wedstrijden</span></a>
-	{% if around %}
-	<nav class="scc-site-nav" aria-label="Wedstrijdnavigatie">
-		<a href="/">Archief</a>
-		{% if around.previous %}<a href="{{ around.previous.data.matchUrl }}" rel="prev">← Vorige</a>{% endif %}
-		{% if around.next %}<a href="{{ around.next.data.matchUrl }}" rel="next">Volgende →</a>{% endif %}
-	</nav>
-	{% endif %}
+	<a class="scc-brand" href="/" aria-label="SC Cambuur, naar het overzicht"><img src="/assets/scc/cambuur.png" alt="" width="150" height="150"></a>
 </header>
+{% endmacro %}
+
+{#- De vaste balk onderaan een wedstrijdpagina: vorige, het overzicht en
+    volgende, gespiegeld rond het logo. Per kant buiten de pijl, dan de
+    richting (met ruimte ook de datum), de tegenstander en competitie,
+    ronde en thuis/uit; binnen, naast het logo, de uitslag in de
+    uitslagkleur. Ontbreekt een kant, dan blijft zijn vak leeg. #}
+{% macro matchPager(around) %}
+<nav class="scc-pager" aria-label="Andere wedstrijden">
+	<div class="scc-pager-inner">
+		{% for item in [around.previous, around.next] %}
+		{% set dir = "prev" if loop.first else "next" %}
+		{% if item %}{% set row = item | sccMatchRow %}
+		<a class="scc-pager-link" href="{{ row.url }}" rel="{{ dir }}" data-dir="{{ dir }}">
+			<span class="scc-pager-arrow" aria-hidden="true">{{ "←" if loop.first else "→" }}</span>
+			<span class="scc-pager-text">
+				<span class="scc-pager-label font-mono text-[11px] leading-4 uppercase"><span class="scc-pager-dir">{{ "Vorige" if loop.first else "Volgende" }}</span><time class="scc-pager-date" datetime="{{ row.date }}">{{ row.day }} {{ row.year }}</time></span>
+				<span class="scc-pager-name">{{ row.opponent }}</span>
+				<span class="scc-pager-meta">{{ row.competition }}{% if row.round %} · {{ row.round }}{% endif %} · {{ row.venue }}</span>
+			</span>
+			<span class="scc-chip scc-led-score scc-pager-score" data-result="{{ row.result }}" aria-label="Uitslag {{ row.score }}, {{ row.result }}">{{ row.score }}</span>
+		</a>
+		{% else %}<span class="scc-pager-link" data-dir="{{ dir }}" aria-hidden="true"></span>{% endif %}
+		{% if loop.first %}<a class="scc-pager-home" href="/"><img src="/assets/scc/cambuur.png" alt="" width="150" height="150"><span class="sr-only">Overzicht</span></a>{% endif %}
+		{% endfor %}
+	</div>
+</nav>
 {% endmacro %}
 
 {% macro chip(text, tone = "neutral", attrs = "") -%}

@@ -186,8 +186,8 @@ Divisie 2025/2026. De bekerwedstrijd staat op datum tussen de
 Eerste Divisie-wedstrijden, met het label `KNVB Beker`. Binnen elke groep
 staat de nieuwste wedstrijd bovenaan. De wedstrijdpagina toont geen
 ruw datablok meer; `data.json` blijft als afzonderlijk bestand
-bereikbaar. Deze pagina's staan in de sitemap; de definitieve paginaweergave moet nog
-worden ontworpen.
+bereikbaar. Ze staan niet in een sitemap en hebben een `noindex`-instructie;
+de definitieve paginaweergave moet nog worden ontworpen.
 
 De wedstrijdpagina toont nu ook een eerste leeslaag op de opgeslagen
 API-data. `src/lib/scc-match-view.js` berekent winst/gelijk/verlies vanuit
@@ -326,7 +326,11 @@ een eigen schaal van rood via oranje, limoen en neongroen naar blauw
 (`--rating-*`). Zet geen `data-result` op een paginacontainer: de tonen
 erven door.
 
-**Wedstrijdpagina.** Kop met merk en navigatie (`siteHeader(around)`).
+**Kop (alle SCC-pagina's).** Alleen het clublogo, gecentreerd (`siteHeader()`,
+`src/assets/scc/cambuur.png`, het API-Football-teamlogo van Cambuur, id 420,
+lokaal opgeslagen); het linkt naar `/`. Er is geen archiefknop meer.
+
+**Wedstrijdpagina.**
 De hero is één paneel met haarlijnen ertussen: het bord (`board`) toont bovenaan het statische verloop als bovenrand en daaronder alleen datum en
 aftraptijd zonder labels, als één gecentreerde regel met een punt ertussen. Op mobiel staan de ploegnamen boven de gecentreerde eindstand, thuis links
 en uit rechts, met compacte regelafstand bij meerregelige namen. De 48px
@@ -387,10 +391,21 @@ een meter met een toon (`facts[].share` en `facts[].tone` uit
 `playerCard`: op doel ≥ 50% sterk, < 34% zwak; passes ≥ 80/< 65%;
 duels en dribbels ≥ 55/< 40%). Minuten staan al in de rij. Een
 speler op het veld linkt naar `#speler-<kant>-<id>`; `scc-match.js`
-klapt die rij open en scrolt ernaartoe. Onderaan vorige en volgende als
-kaarten (`.scc-next-link`): richting en datum, de tegenstander, en een uitslagchip in de uitslagkleur met thuis/uit en
-competitie; een streep aan de buitenkant in dezelfde kleur. De volgende
-spiegelt vanaf sm naar rechts.
+klapt die rij open en scrolt ernaartoe. Vorige en volgende staan in een
+vaste balk onderaan het scherm (`matchPager(around)`, `.scc-pager`), op
+mobiel en desktop, gespiegeld rond het logo in het midden (naar het
+overzicht). Per kant buiten de pijl, dan richting, tegenstander en
+competitie; binnen, naast het logo, de uitslagchip in de uitslagkleur.
+Namen worden niet afgekapt maar lopen zo nodig door op een tweede regel.
+Onder 640px vervalt de pijl en staat de uitslag op de regel van de
+richting, zodat de naam de volle breedte heeft. Vanaf 640px staan pijl en
+datum erbij, vanaf 1024px een regel met competitie, ronde (`row.round` uit
+`roundLabel`, bijvoorbeeld „Ronde 9", „1e voorronde") en thuis/uit. Vanaf
+lg is de balk een stap groter (96px hoog, naam op 22px). De maten staan in
+px: `text-xl` is in dit thema 33px. De regel onder de naam staat in de
+schreefloze letter (13px, 68% tekstkleur), niet in mono-kapitalen zoals
+de richting erboven. Ontbreekt een kant, dan blijft
+dat vak leeg. De losse kaarten onderaan en de knoppen in de kop zijn vervallen.
 
 **Overzicht (`/`).** Bovenaan het programma als vertrekbord: links de
 eerstvolgende wedstrijd op Cambuurblauw met scanlijnen, een
@@ -415,14 +430,6 @@ voldoende, 6,5–6,9 voldoende, 7,0–7,9 goed, vanaf 8,0 uitblinker. De
 band volgt het afgeronde cijfer. Elke speelhelft ligt rechtop (aanval omhoog, linkerflank links) en rekent `grid` om: kolom 1 is
 de linkerflank (Bouah, rugnummer 2, staat op `2:4` rechts); dat is een
 aanname op basis van bekende posities.
-
-**Voor de dock.** De dock zelf is niet aangepast. De wedstrijdpagina
-heeft `<script type="application/json" id="scc-match-data">` met
-`matchView(...).summary` (ploegen, uitslag, rust, ronde, datum, aftrap,
-stadion, scheidsrechter, goals, hoogste cijfer) en blijft beschikbaar voor de dock. De statische tijdlijn stuurt geen
-`scc:moment` meer; de dock zelf is niet aangepast.
-Het overzicht stuurt `scc:match` (url, datum, tegenstander, stand,
-uitslag) voor de rij onder de muis of midden in beeld.
 
 Beweging (`src/js/components/scc-archive.js`, `scc-match.js`,
 `src/js/modules/scc/effects.js`) is zonder bibliotheek; zonder

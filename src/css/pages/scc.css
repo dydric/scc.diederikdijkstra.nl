@@ -381,27 +381,4 @@
      daaronder blijft Cambuur bovenaan. */
   .scc-lineup-team[data-side="home"] { @apply lg:order-1; }
   .scc-lineup-team[data-side="away"] { @apply lg:order-2; }
-
-  /* Vorige en volgende: twee kaarten met links een streep in de
-     uitslagkleur. Alles links uitgelijnd (justify-items-start), zodat de
-     uitslagchip niet over de hele breedte uitrekt; de volgende spiegelt. */
-  .scc-next { @apply mt-16 grid gap-3 sm:grid-cols-2; }
-  .scc-next-link {
-    @apply grid content-start justify-items-start gap-3 p-5 no-underline sm:p-6;
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: inset 4px 0 0 var(--tone), 0 0 0 1px var(--line), var(--panel-shadow);
-    &[data-dir="next"] {
-      @apply sm:col-start-2 sm:justify-items-end sm:text-right;
-      @variant sm { box-shadow: inset -4px 0 0 var(--tone), 0 0 0 1px var(--line), var(--panel-shadow); }
-      .scc-next-label, .scc-next-meta { @apply sm:flex-row-reverse; }
-    }
-    &:hover { box-shadow: inset 4px 0 0 var(--tone), 0 0 0 1.5px var(--fg); }
-    &[data-dir="next"]:hover { @variant sm { box-shadow: inset -4px 0 0 var(--tone), 0 0 0 1.5px var(--fg); } }
-    &:hover .scc-next-dir { color: var(--fg); }
-  }
-  .scc-next-label, .scc-next-meta { @apply flex flex-wrap items-center gap-x-3 gap-y-1; }
-  .scc-next-label, .scc-next-note { color: color-mix(in oklab, var(--fg) 55%, transparent); }
-  .scc-next-dir { @apply font-bold; }
-  .scc-next-title { @apply font-sans font-extrabold tracking-[-0.02em]; font-size: 26px; line-height: 32px; }
 }

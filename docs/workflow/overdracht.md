@@ -1,5 +1,83 @@
 # Overdracht
 
+## Zoekmachine-indexering uitgeschakeld (22 oktober 2026)
+
+Alle HTML-pagina's krijgen `noindex, nofollow` via de gedeelde layout.
+Netlify stuurt dezelfde instructie als `X-Robots-Tag` voor alle statische routes,
+ook voor niet-HTML-bestanden. `robots.txt` blijft crawlen toestaan zodat
+zoekmachines de instructie kunnen lezen; de sitemap en de verwijzing
+ernaar zijn verwijderd. Controle: `npm run check:build`. Geen commit, push
+of deploy.
+
+## Wedstrijdbalk herschikt (22 oktober 2026)
+
+De kanten van de balk onderaan zijn gespiegeld rond het logo: pijl aan de
+buitenrand, tekst (richting en datum, tegenstander, competitie) en de
+uitslagchip aan de binnenkant naast het logo. De gekleurde zijstreep is
+weg; de chip draagt de uitslagkleur. Vanaf lg is alles een stap groter
+(96px hoog, naam 22px, uitslag 20px, logo 56px). Namen worden niet meer
+afgekapt: ze lopen door op twee regels, en onder 640px staat de uitslag
+naast de richting (zonder pijl) zodat de naam de volle breedte heeft. De competitieregel staat
+nu pas vanaf 1024px, zodat hij niet afgekapt wordt. De regel met competitie,
+ronde en thuis/uit staat in de schreefloze letter (13px, 68% tekstkleur)
+in plaats van in gedempte mono-kapitalen, zodat hij zich onderscheidt van
+de richting en datum erboven.
+
+Controle: `npm run check:build`, bekeken op 360, 414, 560, 700 en
+1440px. Geen commit, push of deploy.
+
+## Datum, competitie en ronde in de wedstrijdbalk (22 oktober 2026)
+
+De vaste balk onderaan toont per kant vanaf 640px de datum naast de
+richting en vanaf 768px een regel met competitie, ronde en thuis/uit.
+`roundLabel` in `scc-match-view.js` is geëxporteerd; `row()` in
+`scc-archive.js` levert daarmee `round` (alleen de ronde).
+
+Controle: `npm run check:build`, `npm test` (38 geslaagd), bekeken op
+500, 700 en 1440px. Geen commit, push of deploy.
+
+## Dock verwijderd, scrollbalk in huisstijl (22 oktober 2026)
+
+De dock en console zijn helemaal uit de repo: `dock.njk`, `ticker.njk`,
+`dock.css`, `ticker.css`, `js/components/ticker.js`,
+`js/modules/console/`, `js/modules/effects/ticker.js`,
+`js/modules/data/time.js`, de dock-test en `docs/componenten/dock.md`.
+Ook weg: `site.dock` en `site.location`, de front matter `console:`, de
+dock-tokens in `theme/layout.css`, `#scc-match-data` met
+`matchView().summary` en het event `scc:match` in `scc-archive.js`.
+`base.njk` houdt een vaste onderruimte van 96px (`h-24`). `font-pixel`
+en `--color-warn` blijven: het raster en het design system gebruiken ze.
+
+De scrollbalk (`base/scrollbar.css`, tokens in `theme/colors.css`) is
+gedempt grijs met 2px lucht en afgeronde hoeken, Cambuurgeel onder de
+muis; Firefox krijgt `scrollbar-width: thin` met dezelfde kleuren.
+
+Controle: `npm run check:build` en `npm test` (38 geslaagd), scrollbalk
+bekeken op 1440px. Geen commit, push of deploy.
+
+## Avondveld lichter (22 oktober 2026)
+
+Het avondlicht in `js/modules/scc/turf.js` is opgehoogd: grondlicht van
+0,48 naar 0,62 en lampbijdrage van 0,92 naar 1,0. Dat geldt voor de hero,
+het wedstrijdbord en (gedeelde shader) de opstellingsvelden. Middaglicht
+ongewijzigd.
+
+Controle: developmentbuild geslaagd; detail (20:00) bekeken in headless
+Chrome op 1440px. Geen commit, push of deploy.
+
+## Logo in de kop, vaste wedstrijdbalk onderaan (22 oktober 2026)
+
+De kop toont op alle SCC-pagina's alleen het Cambuurlogo, gecentreerd en
+linkend naar `/`; tekst „SC Cambuur Wedstrijden" en de knoppen Archief,
+Vorige en Volgende zijn weg. Het logo staat lokaal in
+`src/assets/scc/cambuur.png` (teamlogo 420 van de API-Football-CDN, eenmalig
+gedownload). De wedstrijdpagina heeft een vaste balk onderaan
+(`matchPager` in `ui.njk`, `.scc-pager` in `scc-ui.css`) met vorige, het
+logo als homeknop en volgende; die vervangt de kaarten `.scc-next`.
+
+Controle: `npm run check:build`, bekeken op 500px en 1440px.
+Geen commit, push of deploy.
+
 ## Opstellingen thuis links, uit rechts (22 oktober 2026)
 
 Vanaf lg staan de opstellingskaarten (veld en rapportcijfers) in de

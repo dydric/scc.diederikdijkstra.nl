@@ -4,8 +4,6 @@
 //   Scrollen: rijen trekken hun lijn en verschijnen met een rollende
 //   uitslag; panelen met data-reveal (topscorers, profiel) bouwen op.
 //   De vormblokjes en de rijen wijzen elkaar aan bij hover.
-//   De wedstrijd onder de muis of in het midden van het scherm gaat als
-//   event "scc:match" naar document: voor de dock (docs/componenten/dock.md).
 
 import { roll, reveal, still } from '../modules/scc/effects.js';
 
@@ -20,15 +18,6 @@ function activate(row) {
 	if (!row || row === active) return;
 	active = row;
 	for (const cell of cells) cell.toggleAttribute('data-active', cell.dataset.match === row.dataset.url);
-	const link = row.querySelector('a');
-	document.dispatchEvent(new CustomEvent('scc:match', { detail: {
-		url: row.dataset.url,
-		opponent: row.querySelector('.scc-row-opponent')?.firstChild?.textContent.trim(),
-		date: row.querySelector('time')?.getAttribute('datetime'),
-		score: row.querySelector('.scc-row-score')?.textContent,
-		result: row.dataset.result,
-		title: link?.textContent.replace(/\s+/g, ' ').trim(),
-	} }));
 }
 
 if ('IntersectionObserver' in window && rows.length && !still()) {

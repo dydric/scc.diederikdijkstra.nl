@@ -12,8 +12,7 @@
 	/* De container van de pagina: --container-page (theme/layout.css) rekent
 	   met z'n breedte. Smaller dan 300 bestaat niet (de kleinste stap, 256,
 	   met 22px aan weerskanten): daaronder valt rechts een stukje weg
-	   (overflow-x-clip op html), zonder opzij te scrollen, zodat de dock
-	   (fixed, partials/dock.njk) op de kolom blijft. Een container kan in sommige
+	   (overflow-x-clip op html), zonder opzij te scrollen. Een container kan in sommige
 	   browsers het kader zijn voor fixed elementen erin; iets dat fixed
 	   aan het scherm moet hangen dus testen, of buiten body zetten (zoals
 	   de lijn van de scrollbalk, base/scrollbar.css). */

@@ -130,23 +130,99 @@
 
 	/* ── Kop van de site ───────────────────────────────────────────────── */
 
-	.scc-site-header { @apply flex flex-wrap items-center justify-between gap-4 py-6; }
+	.scc-site-header { @apply flex justify-center py-6; }
 
+	/* Het clublogo, gecentreerd; het enige element in de kop. */
 	.scc-brand {
-		@apply inline-flex items-center gap-2.5 font-sans text-base font-extrabold no-underline;
-		.scc-brand-sub { @apply font-semibold; color: color-mix(in oklab, var(--fg) 50%, transparent); }
+		@apply inline-flex rounded-[2px];
+		img { @apply size-16 sm:size-20; transition: transform 0.2s ease; }
+		&:hover img { transform: scale(1.04); }
 	}
-	/* Geel en blauw, half om half: het shirt. */
-	.scc-brand-mark { @apply inline-block size-5 rounded-[3px]; background: linear-gradient(135deg, var(--scc) 0 50%, var(--scc-blue) 50% 100%); }
 
-	.scc-site-nav {
-		@apply flex flex-wrap gap-2;
-		a {
-			@apply inline-flex h-9 items-center rounded-[2px] px-4 font-sans text-sm font-bold no-underline;
+	/* ── Vaste balk onderaan de wedstrijdpagina ─────────────────────────
+	   Vorige links, het logo (naar het overzicht) in het midden, volgende
+	   rechts. Vast onderaan over de volle breedte, binnen de breedte van de
+	   werkruimte. De onderruimte van de pagina (pb-16 en de ruimte in
+	   layouts/base.njk) houdt de laatste inhoud erboven vrij. */
+
+	.scc-pager {
+		@apply fixed inset-x-0 bottom-0 z-30;
+		padding-bottom: env(safe-area-inset-bottom);
+		background: color-mix(in oklab, var(--page-bg) 88%, transparent);
+		backdrop-filter: blur(12px);
+		box-shadow: 0 -1px 0 var(--line);
+	}
+	.scc-pager-inner {
+		@apply mx-auto grid max-w-[1280px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2 px-4 py-2 sm:px-6 lg:px-8;
+	}
+
+	/* Een kant: pijl, tekst en uitslag op één lijn, verticaal gecentreerd.
+	   De volgende spiegelt (order), zodat beide uitslagen naast het logo
+	   staan en beide pijlen aan de buitenrand. */
+	.scc-pager-link {
+		@apply grid min-h-14 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[2px] px-3 no-underline sm:gap-4 sm:px-4 md:min-h-20 lg:min-h-24 lg:gap-5 lg:px-6;
+		&[href] {
 			background: var(--surface);
 			box-shadow: 0 0 0 1px var(--line);
-			&:hover { background: var(--fg); color: var(--page-bg); }
+			&:hover { box-shadow: 0 0 0 1.5px var(--fg); }
 		}
+		&[data-dir="next"] {
+			@apply text-right;
+			.scc-pager-arrow { @apply order-3; }
+			.scc-pager-text { @apply order-2 justify-items-end; }
+			.scc-pager-score { @apply order-1; }
+			.scc-pager-label { @apply flex-row-reverse; }
+		}
+	}
+	.scc-pager-arrow {
+		@apply font-sans text-[20px] leading-none font-bold lg:text-[24px];
+		color: color-mix(in oklab, var(--fg) 45%, transparent);
+		transition: transform 0.15s ease, color 0.15s ease;
+	}
+	.scc-pager-link:hover .scc-pager-arrow { color: var(--fg); }
+	.scc-pager-link[data-dir="prev"]:hover .scc-pager-arrow { transform: translateX(-2px); }
+	.scc-pager-link[data-dir="next"]:hover .scc-pager-arrow { transform: translateX(2px); }
+	.scc-pager-text { @apply grid min-w-0 justify-items-start gap-0.5 lg:gap-1; }
+	.scc-pager-label { @apply flex max-w-full items-center gap-x-2 whitespace-nowrap; }
+	.scc-pager-dir { @apply font-bold; color: color-mix(in oklab, var(--fg) 60%, transparent); }
+	.scc-pager-date { @apply truncate; color: color-mix(in oklab, var(--fg) 40%, transparent); }
+	.scc-pager-link[data-dir="prev"] .scc-pager-date::before { content: "· "; }
+	.scc-pager-link[data-dir="next"] .scc-pager-date::after { content: " ·"; }
+	/* Niet afkappen: een lange naam loopt door op een tweede regel. */
+	.scc-pager-name { @apply line-clamp-2 max-w-full font-sans text-[13px] leading-[16px] font-extrabold tracking-[-0.01em] text-balance sm:text-[16px] sm:leading-[20px] lg:text-[22px] lg:leading-[28px]; overflow-wrap: anywhere; }
+	/* Onder de naam een andere stem dan de mono-regel erboven: gewone
+	   tekst in de schreefloze letter, rustig maar goed leesbaar. */
+	.scc-pager-meta { @apply max-w-full truncate font-sans text-[13px] leading-[16px] font-medium; color: color-mix(in oklab, var(--fg) 68%, transparent); }
+	.scc-pager-score { @apply h-6 px-2 text-[14px] sm:h-7 sm:px-2.5 sm:text-[16px] lg:h-9 lg:px-3 lg:text-[20px]; }
+	/* Zoveel als past. Onder 640px geen pijl (de richting staat er al) en
+	   de uitslag op de regel van de richting, zodat de naam de hele breedte
+	   heeft; vanaf 640px de pijl en de datum erbij, vanaf 1024px ook
+	   competitie, ronde en thuis/uit. */
+	@media (width < 640px) {
+		.scc-pager-link {
+			@apply content-center items-center gap-x-2 gap-y-1 py-2;
+			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-areas: "label score" "name name";
+			&[data-dir="next"] { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "score label" "name name"; }
+		}
+		.scc-pager-text { display: contents; }
+		.scc-pager-label { grid-area: label; }
+		.scc-pager-link[data-dir="next"] .scc-pager-label { @apply justify-self-end; }
+		.scc-pager-name { grid-area: name; }
+		.scc-pager-score { grid-area: score; }
+		.scc-pager-arrow, .scc-pager-date { @apply hidden; }
+	}
+	@media (width < 1024px) { .scc-pager-meta { @apply hidden; } }
+
+	/* Het logo, vierkant en even hoog als de kanten. Vanaf lg is de hele
+	   balk een stap groter (96px hoog). */
+	.scc-pager-home {
+		@apply grid w-14 place-items-center rounded-[2px] md:w-20 lg:w-24;
+		background: var(--surface);
+		box-shadow: 0 0 0 1px var(--line);
+		img { @apply size-8 md:size-11 lg:size-14; transition: transform 0.2s ease; }
+		&:hover { box-shadow: 0 0 0 1.5px var(--fg); }
+		&:hover img { transform: scale(1.06); }
 	}
 
 	/* ── Terminal en klapbord ──────────────────────────────────────────

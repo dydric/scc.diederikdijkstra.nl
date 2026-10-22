@@ -7,7 +7,7 @@
  *     een teksteffect dat tekens verwisselt (decode, corrupt): elk teken even
  *     breed, dus de regel verspringt niet.
  *   - font-data, Space Mono: grotere data, klok en uitslagen.
- *   - font-pixel: bestaande bordcellen in JetBrains Mono op 11, 22 en 33px.
+ *   - font-pixel: monobrede kapitalen in JetBrains Mono op 11, 22 en 33px.
  *
  * Het 8px-raster (base/grid.css): elke regelhoogte is een veelvoud van 8.
  * Montreal en JetBrains Mono staan waar het kan op 11n px (11, 22, 33,

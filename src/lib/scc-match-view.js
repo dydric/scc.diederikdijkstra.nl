@@ -29,7 +29,7 @@ function displayedValue(value, decimal = false) {
 	return String(value);
 }
 
-function roundLabel(match, competition) {
+export function roundLabel(match, competition) {
 	const round = match?.league?.round;
 	if (!round) return null;
 	const name = competition === "KNVB Beker" ? "Beker" : competition;
@@ -244,21 +244,5 @@ export function matchView(wedstrijd) {
 		lineups: match ? lineups(match, data) : [],
 		video: videoView(data),
 		story,
-		// Voor de dock: wat een dock-state over deze wedstrijd kan tonen.
-		summary: {
-			title: data.title,
-			home: data.home,
-			away: data.away,
-			score: data.score,
-			halftime: story.halftime,
-			result: story.result,
-			round,
-			date: data.matchDate ?? null,
-			kickoff,
-			venue,
-			referee: refereeName(match?.fixture?.referee),
-			goals: story.goals.map(goal => ({ minute: goal.minute, team: goal.team, player: goal.player, score: goal.score.text })),
-			motm: story.motm ? { name: story.motm.name, rating: story.motm.ratingText } : null,
-		},
 	};
 }

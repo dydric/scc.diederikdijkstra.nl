@@ -175,7 +175,7 @@ void main() {
 		for (int i = 0; i < ${LAMPS}; i++) on += lamps[i];
 		on /= ${LAMPS}.;
 		color *= 1. + lean * (.04 + sheen * .5) * stripes;
-		color *= vec3(.48, .51, .50) + E * vec3(.92, .88, .80);
+		color *= vec3(.62, .65, .64) + E * vec3(1.0, .96, .87);
 		color += vec3(.95, .9, .78) * (haze * .1 + exp(-max(s, 0.) / 4.) * (.06 * on + leak * .1) * step(0., s));
 	} else {
 		// Middag: zon achter de tribune boven; de schaduw valt over het bovenste deel.

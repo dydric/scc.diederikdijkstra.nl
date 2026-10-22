@@ -42,10 +42,7 @@ export default function(eleventyConfig) {
 	// helemaal: met domDiff zet hij een gewijzigde pagina via morphdom in de
 	// DOM zonder de scripts opnieuw te draaien, en zet hij de attributen van
 	// <html> terug op die uit de HTML. Weg zijn dan wat de JS zette: .js,
-	// --dpr, data-dock-* (de console blijft halverwege staan), de cellen
-	// van de ticker. Zo begint de JS elke keer
-	// schoon, en gaat de dock door met de rij van vóór het herladen
-	// (RELOAD("/pad/"), partials/dock.njk).
+	// --dpr. Zo begint de JS elke keer schoon.
 	//
 	// watch: wat niet via Eleventy komt. tw.css (Tailwind CLI) wisselt
 	// zonder herladen; de JS (esbuild, ook js/chunks/) herlaadt pas als

@@ -1,5 +1,4 @@
-/* Monobrede kapitalen voor bestaande bordcellen. De naam blijft behouden
- * zolang ticker en dock deze maatvoering gebruiken. */
+/* Monobrede kapitalen, onder meer voor de rasterwaarden (grid-value.css). */
 
 @utility font-pixel {
 	font-family: "JetBrains Mono", ui-monospace, monospace;

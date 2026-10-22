@@ -5,7 +5,7 @@
 //                     nieuwe waarde; andere tekens (–, ′) blijven staan.
 //                     JetBrains Mono is monospace, dus niets verspringt.
 //   decode(el, text)  pixeltekst verschijnt van links naar rechts uit
-//                     blokjes, zoals op de dock.
+//                     blokjes.
 //   countUp(el)       telt data-count op vanaf 0 (met data-suffix).
 //   reveal(root)      zet .is-in op [data-reveal] zodra het in beeld komt.
 // Met prefers-reduced-motion staat alles meteen in de eindstand.

@@ -6,6 +6,4 @@ Stack: Eleventy 3, Nunjucks, Tailwind CSS 4, esbuild en Netlify. Commentaar en d
 
 De CSS- en JS-basis, het 32px-raster, de 8px-maatstappen en de mono-typografie komen uit de oorspronkelijke site. Gebruik voor pagina-assets `{% asset %}` of `{% assetUrl %}`; link niet direct naar `/css/` of `/js/`. Wijzig bestaand animatietempo alleen na afstemming.
 
-Werk aan de dock en console hoort bij de dock-specialist; zie [docs/componenten/dock.md](docs/componenten/dock.md). Pagina's, wedstrijddata, import en API-Football blijven buiten dat terrein.
-
 API-Football wordt alleen voor de import door `npm run scc:matchdata` benaderd. Het komende programma komt van de officiële Cambuur-site; de geplande Netlify-functie ververst het pas na de eerstvolgende speeldag. Builds lezen uitsluitend de opgeslagen JSON. Voeg nooit een sleutel of lokale `.env` toe aan Git. Import controleert datum, ploegen en uitslag voordat een respons gekoppeld wordt.

@@ -1,13 +1,13 @@
 // Bestand: js/modules/site/tab.js
 //
 // De titel in de tab: altijd de naam (NAME, de <title> in
-// layouts/base.njk), met soms een melding ervoor, zoals op het bord:
+// layouts/base.njk), met soms een melding ervoor:
 //
-//   × 404 · SC Cambuur
+//   × Error · SC Cambuur
 //
-// Weinig: een fout, en een enkele regel van de console. Twee lagen:
+// Twee lagen:
 //
-//   setTab(tekst)        blijft staan tot setTab(null) (de 404).
+//   setTab(tekst)        blijft staan tot setTab(null).
 //   sayTab(tekst, ms)    even, gaat voor de vaste; daarna terug.
 //
 // Zelf vangt hij een fout in de eigen JS (window error): kort

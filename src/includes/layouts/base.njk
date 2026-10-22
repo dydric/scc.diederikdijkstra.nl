@@ -5,13 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		{#- De titel in de tab volgt de site; meldingen zet tab.js ervoor. #}
 		<title>{{ site.name }}</title>
-		{% if hidepageforseo -%}
 		<meta name="robots" content="noindex, nofollow">
-		{%- else -%}
+		{% if not hidepageforseo -%}
 		{#- striptags voor het geval een description ooit HTML bevat. #}
 		{%- set metaDescription = description or (site.description | striptags) %}
 		<meta name="description" content="{{ metaDescription }}">
-		<meta name="robots" content="index,follow">
 		<meta name="generator" content="eleventy">
 
 		{#- Voor het delen (Open Graph, en X/Bluesky lezen die ook). #}
@@ -54,8 +52,7 @@
 		    effen ondergrond. #}
 		{% if grid %}<div class="grid-bar" aria-hidden="true"><div class="grid-ruler"></div><div class="grid-probe"></div></div>{% endif %}
 		{{ content | safe }}
-		{#- De dock: de ticker vast onderaan (partials/dock.njk). Tijdelijk uit
-		    met site.dock (data/site.js); dan alleen ruimte onder de pagina. #}
-		{% if site.dock %}{% include "dock.njk" %}{% else %}<div class="h-24" aria-hidden="true"></div>{% endif %}
+		{#- Ruimte onder de pagina, ook boven de vaste wedstrijdbalk. #}
+		<div class="h-24" aria-hidden="true"></div>
 	</body>
 </html>

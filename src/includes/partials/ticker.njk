@@ -1,9 +1,0 @@
-{# Een tickerbord met één teken per cel. De dock gebruikt modus console;
-   het eerste plaatslabel blijft leesbaar zonder JavaScript. #}
-{% macro ticker(text, mode = "random", set = "alnum", cells = 0, location = {}, state = "", class = "") %}
-{% asset "ticker" %}
-{%- set chars = text | list %}
-<div class="ticker {{ class }}" aria-hidden="true"{% if mode %} data-ticker="{{ mode }}" data-ticker-set="{{ set }}"{% endif %}{% if location.name %} data-ticker-places="{{ [location.name, location.nameFy] | join("|") }}"{% endif %}{% if state %} data-ticker-state="{{ state }}"{% endif %}>
-	{%- for i in range(cells if cells > chars.length else chars.length) %}<span>{{ chars[i] or " " }}</span>{% endfor -%}
-</div>
-{%- endmacro %}

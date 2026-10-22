@@ -4,3 +4,8 @@
 [dev]
   command = "npm run watch"
   publish = "_site"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

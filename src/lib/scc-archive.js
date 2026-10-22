@@ -5,6 +5,7 @@
 
 import { matchGroups } from "./scc-view.js";
 import { matchStory, ratingBand } from "./scc-match-story.js";
+import { roundLabel } from "./scc-match-view.js";
 
 // Zelfde notatie als het programma: "za 18 okt".
 const day = new Intl.DateTimeFormat("nl-NL", { weekday: "short", day: "2-digit", month: "short", timeZone: "Europe/Amsterdam" });
@@ -57,6 +58,8 @@ export function row(wedstrijd) {
 		cup,
 		advanced: cup ? data.score[side] > data.score[side === "home" ? "away" : "home"] || penaltyWin : null,
 		competition: data.competition,
+		// Alleen de ronde, zonder competitie: "Ronde 8", "1e voorronde".
+		round: roundLabel(data.match, data.competition)?.split(" - ").pop() ?? null,
 		hasVideo: Boolean(data.videoUrl) && data.videoAvailable !== false,
 	};
 }

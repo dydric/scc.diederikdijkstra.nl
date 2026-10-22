@@ -13,16 +13,13 @@ edges: false
 {% asset "scc-ui" %}
 {% asset "scc-turf" %}
 {% asset "scc-match" %}
-{% from "scc/ui.njk" import siteHeader, board, facts, stats, lineupList, ratings, legend with context %}
+{% from "scc/ui.njk" import siteHeader, matchPager, board, facts, stats, lineupList, ratings, legend with context %}
 {% set view = wedstrijd | sccMatchView %}
 {% set story = view.story %}
 {% set data = wedstrijd.data %}
 {% set around = collections.scc | sccNeighbors(wedstrijd) %}
 <main class="scc-workspace scc-match">
-	{#- Voor de dock (docs/componenten/dock.md): een samenvatting van deze
-	    wedstrijd; het verloop en de eindstand zijn statisch. #}
-	<script type="application/json" id="scc-match-data">{{ view.summary | dump | safe }}</script>
-	{{ siteHeader(around) }}
+	{{ siteHeader() }}
 
 	{# De hero: het vertrekbord met de uitslag en de gegevens, het korte
 	   verslag en het statische verloop, in één paneel. #}
@@ -109,18 +106,5 @@ edges: false
 
 	</div>
 
-	<nav class="scc-next" aria-label="Andere wedstrijden">
-		{#- Per kaart: richting en datum, de tegenstander, en de uitslag als
-		    chip in de uitslagkleur met thuis/uit erachter. #}
-		{% for item in [around.previous, around.next] %}{% if item %}{% set row = item | sccMatchRow %}
-		<a class="scc-next-link" href="{{ row.url }}" rel="{{ 'prev' if loop.first else 'next' }}" data-dir="{{ 'prev' if loop.first else 'next' }}" data-result="{{ row.result }}">
-			<span class="scc-next-label font-mono text-[11px] leading-4 uppercase"><span class="scc-next-dir">{{ "← Vorige" if loop.first else "Volgende →" }}</span><time datetime="{{ row.date }}">{{ row.day }} {{ row.year }}</time></span>
-			<span class="scc-next-title">{{ row.opponent }}</span>
-			<span class="scc-next-meta">
-				<span class="scc-chip scc-led-score" data-result="{{ row.result }}" aria-label="Uitslag {{ row.score }}, {{ row.result }}">{{ row.score }}</span>
-				<span class="scc-next-note font-mono text-[11px] leading-4 uppercase">{{ row.venue }}{% if row.competition %} · {{ row.competition }}{% endif %}</span>
-			</span>
-		</a>
-		{% endif %}{% endfor %}
-	</nav>
+	{{ matchPager(around) }}
 </main>

@@ -19,8 +19,7 @@
 
 	   De stap is 64 (576, 512, 448), en daaronder 32, één kolom (tot
 	   --page-step-small-max, 416): anders blijft er op een telefoon tot 88px
-	   marge over, en staan de pagina en de dock (partials/dock.njk, strak op
-	   de pagina) verloren op het scherm. Dus 416, 384, 352, 320, 288 of 256:
+	   marge over, en staat de pagina verloren op het scherm. Dus 416, 384, 352, 320, 288 of 256:
 	   de iPhone 17 Pro (402 breed) krijgt 352 (25px marge), de Pro Max
 	   (440) 384 (28px), een iPhone 16 (393) 320 (36px). Geen @media: de
 	   grootste van de twee stappen, allebei met dezelfde breedte gerekend
@@ -59,19 +58,6 @@
 	   is soms net iets minder dan de breedte (zie de containerbreedte). */
 	--page-inset: round(down, (100cqw - var(--container-page)) / 2 + 0.01px, 1px);
 
-	/* De breedte van de dock (partials/dock.njk), op elke breedte gelijk
-	   aan de werkruimte van het design system (--system-width,
-	   css/pages/scc.css): de beschikbare breedte met --dock-margin (24)
-	   aan weerskanten, tot --dock-max (1344), nooit smaller dan de pagina
-	   (op een telefoon is dat dezelfde breedte). De stap is 32 (de cellen
-	   van 16 passen), vanaf xl 96 (3 kolommen, cellen van 24): 576, 672 ...
-	   1344. Een even aantal px, dus de randen staan op hele pixels. Home en
-	   404 gebruiken hem ook voor hun kolom. */
-	--dock-step: 32px;
-	--dock-max: 1344px;
-	--dock-margin: 24px;
-	--dock-w: max(var(--container-page), round(down, min(var(--dock-max), 100cqw - 2 * var(--dock-margin)), var(--dock-step)));
-	--dock-inset: calc(var(--page-inset) - (var(--dock-w) - var(--container-page)) / 2);
 
 	/* De balk bovenaan (base/grid.css): 8px, op elke pagina. Een layout die
 	   het scherm vult, trekt hem af. */
@@ -85,11 +71,4 @@
 	   daarmee mee. --double-flow staat boven een kop. */
 	--flow: var(--text-base--line-height);
 	--double-flow: calc(var(--flow) * 2);
-}
-
-/* Vanaf xl de dock in cellen van 24: stappen van 96 (theme/layout.css). */
-@media (min-width: 1280px) {
-	:root {
-		--dock-step: 96px;
-	}
 }

@@ -38,7 +38,7 @@ const hash = (content) => createHash("sha256").update(content).digest("hex").sli
 
 const exists = (file) => fs.existsSync(path.join(SRC, file));
 
-// De bestanden bij een naam: { css: "css/components/ticker.css", js: … },
+// De bestanden bij een naam: { css: "css/components/scc-ui.css", js: … },
 // relatief aan src/ en aan de uitvoer. Een naam hoort bij components óf pages.
 const resolve = (name) => {
 	const found = {};
