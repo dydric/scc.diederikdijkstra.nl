@@ -10,7 +10,8 @@
      .scc-chip      label met een toon (data-tone of data-result)
      .scc-term      terminalregel: prompt, tekst, knipperende cursor
      .scc-flap      scoretegel in Space Mono; .scc-flaps per teken in Space Mono
-     .scc-stat-big  groot statistisch getal in Space Mono
+     .scc-stat-big  groot statistisch getal in Space Mono; in een
+                    .scc-stat-card een tegel zoals een rapportcijfer (lg)
      .scc-meter     balk van 0 t/m 100% (--value) in een toon
    Tonen (data-tone): pos, neutral, neg, scc, info, muted; data-result
    (winst, gelijk, verlies) en data-state (voor, gelijk, achter) vallen
@@ -258,7 +259,8 @@
 {% endmacro %}
 
 {# De kerncijfers onder de scorekaart: een tegel per onderwerp, Cambuur
-   eerst. De toon zegt of het cijfer gunstig is. #}
+   eerst. De toon zegt of het cijfer gunstig is. data-echo: een regel die
+   het getal alleen herhaalt; die vervalt in de compacte telefoonweergave. #}
 {% macro facts(story, data, view) %}
 {% set f = story.facts %}
 {% set ts = story.teamStats %}
@@ -277,7 +279,7 @@
 	<li class="scc-stat-card" data-reveal data-tone="{{ 'pos' if share > 52 else ('neg' if share < 48 else 'neutral') }}">
 		<p class="scc-eyebrow">Balbezit</p>
 		<div class="scc-fact-value"><span class="scc-stat-big">{{ share }}%</span></div>
-		<p class="scc-fact-main">SC Cambuur</p>
+		<p class="scc-fact-main" data-echo>SC Cambuur</p>
 		<p class="scc-fact-sub">{{ data[opp] }} {{ ts.possession[opp] }}%</p>
 		<span class="scc-meter" style="--value: {{ share }}%" aria-hidden="true"><i></i></span>
 	</li>
@@ -296,7 +298,7 @@
 	<li class="scc-stat-card" data-reveal data-tone="{{ 'pos' if f.shotsOn.cambuur > f.shotsOn.opponent else ('neg' if f.shotsOn.cambuur < f.shotsOn.opponent else 'neutral') }}">
 		<p class="scc-eyebrow">Op doel</p>
 		<div class="scc-fact-value"><span class="scc-stat-big">{{ f.shotsOn.cambuur }}<span class="scc-stat-of">/{{ f.shots.cambuur }}</span></span></div>
-		<p class="scc-fact-main">Van {{ f.shots.cambuur }} schoten</p>
+		<p class="scc-fact-main" data-echo>Van {{ f.shots.cambuur }} schoten</p>
 		<p class="scc-fact-sub">{{ data[opp] }} {{ f.shotsOn.opponent }}/{{ f.shots.opponent }}</p>
 		{% if f.shots.cambuur %}<span class="scc-meter" style="--value: {{ (f.shotsOn.cambuur / f.shots.cambuur * 100) | round }}%" aria-hidden="true"><i></i></span>{% endif %}
 	</li>
@@ -304,7 +306,7 @@
 	<li class="scc-stat-card" data-reveal{% if f.red.cambuur %} data-tone="neg"{% endif %}>
 		<p class="scc-eyebrow">Kaarten</p>
 		<div class="scc-fact-value"><p class="scc-fact-cards" aria-hidden="true">{% for i in range(0, f.yellow.cambuur) %}<i data-kind="yellow"></i>{% endfor %}{% for i in range(0, f.red.cambuur) %}<i data-kind="red"></i>{% endfor %}{% if not (f.yellow.cambuur or f.red.cambuur) %}<span class="scc-stat-big">0</span>{% endif %}</p></div>
-		<p class="scc-fact-main">{{ f.yellow.cambuur }} geel{% if f.red.cambuur %}, {{ f.red.cambuur }} rood{% endif %}</p>
+		<p class="scc-fact-main" data-echo>{{ f.yellow.cambuur }} geel{% if f.red.cambuur %}, {{ f.red.cambuur }} rood{% endif %}</p>
 		<p class="scc-fact-sub">{{ data[opp] }} {{ f.yellow.opponent }} geel{% if f.red.opponent %}, {{ f.red.opponent }} rood{% endif %}</p>
 	</li>
 </ul>
@@ -453,13 +455,18 @@
 
 {# compact: de tegenstander, zonder uitklap. field: de speelhelft in een
    kader tussen de kop en de basis (alleen met veldplekken), met de aftrap
-   voor het licht. #}
-{% macro ratings(team, compact = false, field = false, kickoff = "") %}
-<div class="scc-card scc-table scc-ratings"{% if team.cambuur %} data-cambuur{% endif %}{% if compact %} data-compact{% endif %} aria-label="Rapportcijfers {{ team.name }}">
-	<div class="scc-ratings-title">
-		<p>{{ teamKey(team.name, team.cambuur) }}{% if team.formation or team.coach %} <span class="scc-ratings-meta">{% if team.formation %}{{ team.formation }}{% endif %}{% if team.formation and team.coach %} · {% endif %}{% if team.coach %}Trainer {{ team.coach }}{% endif %}</span>{% endif %}</p>
-		{% if team.average %}<p class="scc-ratings-average"><span class="scc-eyebrow">Gem.</span> {{ rating(team.average, team.averageBand, "sm") }}</p>{% endif %}
-	</div>
+   voor het licht. fold: de kaart is een details met de kop als summary;
+   Cambuur staat open, de tegenstander dicht. Onder lg is steeds één ploeg
+   open, vanaf lg beide (scc-match.js). #}
+{% macro ratings(team, compact = false, field = false, kickoff = "", fold = false) %}
+{% set tag = "details" if fold else "div" %}
+{% set head = "summary" if fold else "div" %}
+<{{ tag }} class="scc-card scc-table scc-ratings"{% if team.cambuur %} data-cambuur{% endif %}{% if compact %} data-compact{% endif %}{% if fold %} data-lineup-fold{% if team.cambuur %} open{% endif %}{% endif %} aria-label="Rapportcijfers {{ team.name }}">
+	<{{ head }} class="scc-ratings-title">
+		<span class="scc-ratings-team">{{ teamKey(team.name, team.cambuur) }}{% if team.formation or team.coach %} <span class="scc-ratings-meta">{% if team.formation %}{{ team.formation }}{% endif %}{% if team.formation and team.coach %} · {% endif %}{% if team.coach %}Trainer {{ team.coach }}{% endif %}</span>{% endif %}</span>
+		{% if team.average %}<span class="scc-ratings-average"><span class="scc-eyebrow">Gem.</span> {{ rating(team.average, team.averageBand, "sm") }}</span>{% endif %}
+		{% if fold %}<span class="scc-lineup-toggle" aria-hidden="true"></span>{% endif %}
+	</{{ head }}>
 	{% if field and team.complete %}<div class="scc-ratings-field">{{ pitchField(team, kickoff) }}</div>{% endif %}
 	<div class="scc-table-group">
 		<p class="scc-table-group-title">Basis</p>
@@ -471,7 +478,7 @@
 		{% for player in team.bench | sort(true, false, "rating") %}{% if compact %}{{ ratingLine(player, loop.index0 + 11) }}{% else %}{{ ratingRow(player, loop.index0 + 11, team.side) }}{% endif %}{% endfor %}
 	</div>
 	{% endif %}
-</div>
+</{{ tag }}>
 {% endmacro %}
 
 {% macro legend() %}

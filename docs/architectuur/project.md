@@ -18,8 +18,8 @@ ververst de sitebrede Blob dagelijks met maximaal drie API-verzoeken.
 heeft een breed donker voorbeschouwingspaneel en `Programma` eronder.
 
 De homehero heeft datum en aftrap centraal boven de ploegen, duidelijke
-thuis/uit-labels en een kleine aftelregel eronder. Onder 640px staan de
-ploegen onder elkaar met de vorm onder de eigen naam. `Programma` is een
+thuis/uit-labels en een kleine aftelregel eronder. Onder 640px staat per
+ploeg één regel met de vorm rechts naast de naam, zonder zichtbare labels. `Programma` is een
 compacte gedempte lijst zonder vorm of stand; de eerstvolgende wedstrijd
 houdt het meeste visuele gewicht.
 

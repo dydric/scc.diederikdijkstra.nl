@@ -34,7 +34,7 @@
   }
 
   .scc-upcoming-main {
-    @apply grid content-between gap-8 p-6 sm:p-8 xl:p-10;
+    @apply grid content-between gap-6 p-5 sm:gap-8 sm:p-8 xl:p-10;
     background:
       repeating-linear-gradient(180deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 3px),
       radial-gradient(120% 90% at 50% -30%, color-mix(in oklab, var(--scc-blue) 30%, transparent), transparent 62%),
@@ -51,7 +51,7 @@
   .scc-upcoming-context { @apply ms-auto; color: rgb(255 255 255 / 0.6); }
 
   .scc-upcoming-stage[hidden], .scc-upcoming-empty[hidden], .scc-upcoming-countdown[hidden] { @apply hidden; }
-  .scc-upcoming-stage { @apply grid gap-8 py-4 md:py-8; }
+  .scc-upcoming-stage { @apply grid gap-5 sm:gap-8 sm:py-4 md:py-8; }
 
   /* Zelfde opzet als het detailbord: thuis rechts, uit links, met het
      scorestreepje op naamhoogte ertussen. Onder 640px gecentreerd onder
@@ -105,12 +105,29 @@
     > span { @apply font-data text-[16px] leading-6; color: rgb(255 255 255 / 0.45); }
   }
   .scc-preview-side { @apply font-mono text-[11px] leading-4 uppercase; color: rgb(255 255 255 / 0.5); }
+  /* Op een telefoon één regel per ploeg, als op een wedstrijdbriefje: naam
+     links, vorm rechts, de stand eronder. Thuis staat boven, uit onder;
+     de labels zijn alleen nog voor schermlezers. Datum, ploegen en klok
+     delen dezelfde linkerrand. */
   @media (max-width: 639px) {
-    .scc-upcoming-teams { @apply gap-y-8; grid-template-columns: minmax(0, 1fr); &::after { content: none; } }
-    .scc-preview-team[data-side] { @apply col-start-1 text-center; }
+    .scc-upcoming-when, .scc-upcoming-countdown { @apply justify-start; }
+    .scc-upcoming-teams {
+      @apply gap-y-3;
+      grid-template-columns: minmax(0, 1fr);
+      &::after { content: none; }
+    }
+    .scc-preview-team[data-side] {
+      @apply col-start-1 items-center gap-x-4 gap-y-1 text-left;
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
     .scc-preview-team[data-side="away"] { @apply row-start-2; }
-    .scc-preview-team > [data-preview-team] { @apply justify-items-center; }
-    .scc-upcoming-teams:not([data-long-names]) { --name-size: 32px; --name-lh: 40px; }
+    .scc-preview-team .scc-preview-side { @apply sr-only; }
+    .scc-preview-team .scc-upcoming-name { grid-area: 1 / 1; }
+    .scc-preview-team > [data-preview-team] { display: contents; }
+    .scc-preview-team :is(.scc-preview-form, .scc-preview-note) { grid-area: 1 / 2; justify-self: end; }
+    .scc-preview-team .scc-preview-standing { @apply mb-0; grid-area: 2 / 1 / 3 / 3; }
+    .scc-preview-form > span { @apply size-5 text-[10px]; }
+    .scc-upcoming-teams:not([data-long-names]) { --name-size: 28px; --name-lh: 36px; }
   }
   .scc-preview-standing { @apply mb-3 font-mono text-[12px] leading-5; color: rgb(255 255 255 / 0.6); }
   /* Dezelfde blokjes als de seizoensvorm (.scc-form-cell); op kleine
@@ -125,13 +142,15 @@
   .scc-preview-note { @apply font-mono text-[11px] leading-4; color: rgb(255 255 255 / 0.6); }
   .scc-preview-note:empty { display: none; }
   /* De voorspelling vormt net als het detailverloop een volle bovenrand. */
-  .scc-preview-prediction { @apply -mx-6 -mt-6 grid gap-2 sm:-mx-8 sm:-mt-8 xl:-mx-10 xl:-mt-10; }
+  .scc-preview-prediction { @apply -mx-5 -mt-5 grid gap-2 sm:-mx-8 sm:-mt-8 xl:-mx-10 xl:-mt-10; }
   .scc-preview-prediction[hidden] { display: none; }
-  .scc-preview-chances { @apply grid grid-cols-3 gap-4 px-6 sm:px-8 xl:px-10; }
-  .scc-preview-chances > div { @apply flex flex-wrap items-baseline gap-x-2 font-mono text-[11px] leading-4; }
-  .scc-preview-chances strong { @apply font-data text-[14px] leading-5; }
-  .scc-preview-chances > :nth-child(2) { @apply justify-center text-center; }
-  .scc-preview-chances > :last-child { @apply justify-end text-right; }
+  /* De kolommen volgen de breedtes van de vlakken (fr per percentage), zodat
+     elk getal midden onder zijn eigen kleur staat. Vanaf md staat eronder
+     winst, gelijk of verlies, gezien vanuit Cambuur. */
+  .scc-preview-chances { @apply grid grid-cols-3; }
+  .scc-preview-chances > div { @apply grid min-w-0 justify-items-center text-center; }
+  .scc-preview-chances strong { @apply font-data text-[14px] leading-5 whitespace-nowrap; }
+  .scc-preview-outcome { @apply hidden font-mono text-[11px] leading-4 whitespace-nowrap md:block; color: rgb(255 255 255 / 0.6); }
   .scc-preview-bar { @apply flex h-4; }
   .scc-preview-bar > span {
     --prediction-tone: var(--result-verlies);
@@ -156,7 +175,7 @@
   .scc-upcoming-empty { @apply font-sans text-2xl font-extrabold; }
 
   /* Daarna is een rustige programmalijst, zonder eigen vormblokjes. */
-  .scc-upcoming-side { @apply px-6 py-4 sm:px-8 xl:px-10; border-top: 1px solid var(--line); }
+  .scc-upcoming-side { @apply px-5 py-4 sm:px-8 xl:px-10; border-top: 1px solid var(--line); }
   .scc-upcoming-later { @apply mb-2 font-mono text-[11px] leading-4 uppercase; color: rgb(255 255 255 / 0.55); }
   .scc-upcoming-next { @apply grid; }
   .scc-upcoming-next-row {
@@ -178,6 +197,19 @@
 
   .scc-season-summary { @apply flex flex-wrap items-center gap-x-6 gap-y-3; }
   .scc-season-tally { @apply flex flex-wrap items-center gap-1.5; }
+  /* Onder md zegt de telling genoeg; de vormstrook liep daar over meerdere
+     regels. */
+  .scc-season-summary .scc-form { @apply max-md:hidden; }
+  /* Vanaf lg volgt de kop het raster van de inhoud: de telling boven de
+     cijfers (300px), de vormstrook boven de wedstrijden, gelijk met de
+     linkerrand van dat kader. */
+  @media (min-width: 1024px) {
+    .scc-season-head { @apply gap-x-6; grid-template-columns: 300px minmax(0, 1fr); }
+    .scc-season-head > :first-child { @apply col-span-full; }
+    .scc-season-summary { display: contents; }
+    .scc-season-tally { @apply self-center; grid-column: 1; }
+    .scc-season-summary .scc-form { @apply self-center; grid-column: 2; }
+  }
   .scc-count {
     @apply inline-flex h-7 items-center gap-0.5 rounded-[2px] px-2 font-data text-[22px] leading-6 uppercase;
     font-weight: 700;
@@ -196,9 +228,34 @@
   .scc-season-stat-name { @apply font-sans text-[19px] leading-6 font-extrabold; }
   .scc-season-stat-more { @apply font-mono text-[12px] leading-5; color: color-mix(in oklab, var(--fg) 55%, transparent); }
 
+  /* Op een telefoon één paneel met vier regels: het getal links, label en
+     naam ernaast; de toelichting vervalt. */
+  @media (max-width: 639px) {
+    .scc-season-stats {
+      @apply grid-cols-1 gap-0 overflow-hidden;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 0 0 1px var(--line), var(--panel-shadow);
+      .scc-stat-card {
+        @apply items-center gap-x-4 gap-y-0.5 px-4 py-3;
+        grid-template-columns: 72px minmax(0, 1fr);
+        border-radius: 0;
+        background: none;
+        box-shadow: none;
+        & + .scc-stat-card { box-shadow: inset 0 1px 0 var(--line); }
+        > dt { grid-area: 1 / 2; }
+        > dd:nth-of-type(1) { @apply mt-0; grid-area: 1 / 1 / 3 / 2; }
+        > .scc-season-stat-name { @apply text-[16px] leading-5; grid-area: 2 / 2; }
+        > .scc-season-stat-more { @apply hidden; }
+      }
+      :is(.scc-stat-big, .scc-season-rating .scc-rating, .scc-season-cards span) { @apply h-9 px-2 text-[22px]; }
+      .scc-season-cards { @apply gap-1; }
+    }
+  }
+
   .scc-season-cards {
     @apply flex items-center gap-2;
-    span { @apply inline-grid h-11 min-w-8 place-items-center rounded-[3px] px-2 font-data text-[22px]; font-weight: 700; }
+    span { @apply inline-grid h-11 min-w-8 place-items-center rounded-[3px] px-3 font-data text-[28px] leading-none tracking-[-0.02em]; font-weight: 700; }
     [data-kind="yellow"] { background: #f6c90e; color: #1a1a1a; }
     [data-kind="red"] { background: var(--scc-red); color: #fff; }
   }
@@ -284,9 +341,17 @@
       }
     }
   }
+  /* Zodra de rij in beeld komt (zonder JS meteen) schuift de strook half
+     omhoog: een dunne lijn van 2px. Hover en focus tonen hem voluit met de
+     volle gloed, in hetzelfde tempo. */
+  :is(html:not(.js) .scc-row, .scc-row.is-in) .scc-row-timeline > span::after { transform: translateY(50%); }
   .scc-row a:is(:hover, :focus-visible) .scc-row-timeline > span {
     &::before { opacity: 1; transform: translateY(0); }
     &::after { transform: translateY(0); }
+  }
+  /* Touch kent geen hover: daar is de gloed in rust iets sterker. */
+  @media (hover: none) {
+    :is(html:not(.js) .scc-row, .scc-row.is-in) .scc-row-timeline > span::before { opacity: 0.3; transform: translateY(0); }
   }
   @media (prefers-reduced-motion: reduce) {
     .scc-row a,
@@ -338,6 +403,15 @@
     dt { @apply font-mono text-[11px] leading-4 uppercase; color: color-mix(in oklab, var(--fg) 55%, transparent); }
     dd { @apply font-mono text-[11px] leading-4; color: color-mix(in oklab, var(--fg) 80%, transparent); }
   }
+  /* Op een telefoon lopen de gegevens als één regel door, label en waarde
+     naast elkaar. */
+  @media (max-width: 639px) {
+    .scc-hero-details {
+      @apply mt-2 flex flex-wrap gap-x-4 gap-y-1;
+      > div { @apply flex items-baseline gap-1.5; }
+      dt { color: color-mix(in oklab, var(--fg) 45%, transparent); }
+    }
+  }
 
 
   .scc-match .scc-facts { @apply mt-4; }
@@ -381,4 +455,33 @@
      daaronder blijft Cambuur bovenaan. */
   .scc-lineup-team[data-side="home"] { @apply lg:order-1; }
   .scc-lineup-team[data-side="away"] { @apply lg:order-2; }
+  .scc-ratings[data-lineup-fold] { scroll-margin-top: 16px; }
+
+  /* Onder lg is de kop van een opstelling de knop: één ploeg tegelijk open,
+     rechts + of −. Vanaf lg staan beide open en is de kop gewoon een kop
+     (ook zonder JS, via ::details-content). */
+  .scc-ratings[data-lineup-fold] > summary {
+    @apply cursor-pointer list-none;
+    &::-webkit-details-marker { @apply hidden; }
+    &:hover { background: color-mix(in oklab, var(--fg) 3%, transparent); }
+  }
+  .scc-ratings-team { @apply min-w-0 flex-1; }
+  .scc-lineup-toggle {
+    @apply w-3.5 text-right font-sans text-base font-semibold;
+    color: color-mix(in oklab, var(--fg) 45%, transparent);
+    &::before { content: "+"; }
+    [open] > summary > &::before { content: "−"; }
+  }
+  /* Onder lg staan formatie en trainer niet achter de naam: dicht ontbreken
+     ze, open staan ze eronder. */
+  @media (max-width: 1023px) {
+    .scc-ratings[data-lineup-fold] .scc-ratings-team { @apply grid justify-items-start gap-1; }
+    .scc-ratings[data-lineup-fold] .scc-ratings-meta { @apply ms-0; }
+    .scc-ratings[data-lineup-fold]:not([open]) .scc-ratings-meta { @apply hidden; }
+  }
+  @media (min-width: 1024px) {
+    .scc-ratings[data-lineup-fold] > summary { @apply cursor-auto; &:hover { background: none; } }
+    .scc-lineup-toggle { @apply hidden; }
+    .scc-ratings[data-lineup-fold]::details-content { content-visibility: visible; display: contents; }
+  }
 }

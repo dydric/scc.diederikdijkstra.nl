@@ -28,7 +28,7 @@ grid: false
 		<div class="scc-upcoming-main scc-turf" data-turf="proef-home" data-kickoff="{{ first.date if first }}">
 			{{ prediction(first) }}
 			<p class="scc-upcoming-head scc-term">
-				<span class="scc-term-prompt" aria-hidden="true">&gt;</span><span>Volgende wedstrijd</span><span class="scc-term-cursor" aria-hidden="true"></span><span class="scc-upcoming-context" data-upcoming-context{% if not first %} hidden{% endif %}>{{ first.context if first }}</span>
+				<span class="scc-term-prompt" aria-hidden="true">&gt;</span><span>Volgende wedstrijd</span><span class="scc-upcoming-context" data-upcoming-context{% if not first %} hidden{% endif %}>{{ first.context if first }}</span>
 			</p>
 			<div class="scc-upcoming-stage" data-upcoming-stage{% if not first %} hidden{% endif %}>
 				<span class="scc-upcoming-when" data-upcoming-when{% if not first %} hidden{% endif %}><time data-upcoming-date datetime="{{ first.date if first }}">{{ first.day if first }}</time><span aria-hidden="true">·</span><time data-upcoming-time>{{ first.time if first }}</time></span>

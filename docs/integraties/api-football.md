@@ -12,6 +12,12 @@ ongewijzigd. Builds en bezoekers doen geen API-Football-verzoeken.
 50%. Dezelfde respons levert via `teams.<kant>.league.form` de vormreeks;
 de laatste vijf zijn G–V–V–V–V en G–W–G–W–G, van oud naar nieuw. Dit is
 een modelvoorspelling van API-Football, geen zekerheid of bookmakerquotering.
+De site toont die ruwe verdeling niet letterlijk: `displayPrediction` in
+`scc-preview.js` verschuift thuis en uit elk -3 t/m +3 procentpunt (gelijk
+vangt het verschil op), vast per wedstrijd via een hash van `previewKey`.
+Build en Netlify-functie geven zo steeds dezelfde uitkomst. Daarna krijgt
+elk vlak minimaal 5%, afgesnoept van het grootste, en is de som 100; 0/50/50
+wordt bijvoorbeeld 5/48/47. De opgeslagen respons blijft ongewijzigd.
 Positie en punten worden uitsluitend uit `/standings` getoond zodra die
 beschikbaar zijn; er is geen verborgen terugval op een andere bron.
 

@@ -4,6 +4,61 @@ Opgezet op 19 oktober 2026 uit de door de gebruiker aangeleverde tekst
 over Cambuurs promotieseizoen. Er zijn eenvoudige
 overzichts- en wedstrijdpagina's om de collectie te bekijken.
 
+## Mobiele weergave (23 oktober 2026)
+
+Homehero onder 640px: per ploeg één regel met de naam links (28px, bij
+lange namen 24px) en de vormblokjes (20px) rechts, de stand eronder over
+de volle breedte. Thuis staat boven, uit onder; `Thuis` en `Uit` zijn daar
+`sr-only`. Datum, ploegen en aftelregel staan links uitgelijnd. Het paneel
+heeft 20px binnenmarge; de voorspellingsrand en `Programma` volgen die.
+
+Seizoenen: onder md verdwijnt de vormstrook naast de telling. Vanaf lg
+volgt de seizoenskop het raster van de inhoud (300px en de rest): de
+telling staat boven de cijferkaarten, de vormstrook boven de wedstrijden,
+gelijk met de linkerrand van het wedstrijdkader
+(`.scc-season-summary` is daar `display: contents`). Onder 640px
+zijn de vier cijferkaarten één paneel met vier regels: het getal (72px
+kolom) links, label en naam rechts; de grijze toelichting vervalt.
+
+Seizoensrijen: zodra een rij `is-in` krijgt (zonder JS meteen) schuift de
+verloopstrook half omhoog en staat er een lijn van 2px, op elk apparaat.
+Hover en focus tonen hem voluit (4px, volle gloed) in het bestaande tempo.
+Op touch (`hover: none`) is de rustgloed 30% in plaats van 16%. Achter
+`Volgende wedstrijd` staat geen knipperende cursor meer.
+
+Wedstrijdpagina onder 640px: de kerncijfers (`facts`) zijn één paneel met
+een regel per cijfer (getal in een kolom van 88px, label en toelichting
+ernaast). Meters en regels met `data-echo` (die het getal herhalen)
+vervallen; de toon kleurt het getal. Speelronde, stadion en
+scheidsrechter lopen als één doorlopende regel, label en waarde naast
+elkaar.
+
+Wedstrijdhero onder 640px (keuze gebruiker: scorekolom met verloop):
+per ploeg een regel met de naam (28px) links en zijn doelpunten als
+cijfertegel rechts, in een scorekolom van 56px. `.scc-board-score` is daar
+`display: contents`; het streepje en de speeltijd (90′+) vervallen, die
+was op het gras slecht leesbaar. Daaronder loopt de doellijn door die kolom langs de tussenstanden,
+nieuwste eerst; maker, minuut (geel Cambuur, rood tegenstander) en
+toelichting staan links. `Rust 45′` staat links, op de lijn van de namen.
+Datum en aftrap delen de linkerrand. Vanaf 640px blijft het bestaande bord.
+
+Cijfertegels: in een `.scc-stat-card` staat elk groot getal
+(`.scc-stat-big`) als tegel, gelijk aan een rapportcijfer `lg`: 44px hoog,
+28px Space Mono, een vlak van 8% tekstkleur met kader (`--line-strong`).
+Met toon `pos` of `neg` is het vlak de zachte toonkleur. De geel/rood-blokjes
+op home volgen dezelfde maat. Onder 640px zijn al deze tegels 36px hoog met
+22px cijfers. Dit geldt voor de seizoenscijfers op home en de kerncijfers
+op de wedstrijdpagina.
+
+Opstellingen: `ratings(..., fold = true)` maakt van de tabelkaart een
+`<details data-lineup-fold>` met de kop als summary (+ / −). Cambuur staat
+open, de tegenstander dicht. Onder lg is steeds één ploeg open: openen van
+de een sluit de ander en `scc-match.js` scrolt de geopende kop in beeld.
+Onder lg ontbreken formatie en trainer in een dichte kop; open staan ze
+onder de clubnaam. Vanaf 1024px staan beide open, doet de kop niets en houdt
+`::details-content` de inhoud ook zonder JS zichtbaar. Een spelerlink of
+`#speler-…` opent eerst de juiste kaart.
+
 ## Opstelling op het heroveld, in de tabelkaart (22 oktober 2026)
 
 De speelhelften gebruiken hetzelfde procedurele WebGL-gras als de hero
@@ -72,9 +127,9 @@ typografie als het detailbord. Datum en aftrap staan centraal boven de
 ploegen. Thuis staat links en rechts uitgelijnd, uit rechts en links
 uitgelijnd, met een rustig streepje ertussen. Beide hebben een expliciet
 thuis/uit-label en hun eigen stand (indien beschikbaar) en vorm onder de
-naam. Onder 640px staan de ploegen gecentreerd onder elkaar, steeds in
-dezelfde leesvolgorde: label, naam, stand en vorm. Namen worden niet afgekapt.
-De namen groeien met de beschikbare schermruimte: 32px op mobiel, 44px
+naam. Onder 640px staat per ploeg één compacte regel (zie
+[Mobiele weergave](#mobiele-weergave-23-oktober-2026)). Namen worden niet afgekapt.
+De namen groeien met de beschikbare schermruimte: 28px op mobiel, 44px
 vanaf md, 64px vanaf lg en 80px vanaf xl, met regelhoogtes van respectievelijk
 40, 52, 72 en 88px. Bij een naam langer dan elf tekens schakelen beide
 clubtitels samen terug: 24px op mobiel/sm, 32px vanaf md, 40px vanaf lg
@@ -90,7 +145,12 @@ tegelachtergronden: `Aftrap over`, dagen, uren, minuten en seconden.
 Het bestaande tempo en gedrag na de aftrap blijven gelijk. Datum en tijd
 blijven zonder JavaScript zichtbaar. De voorspelling vormt de bovenrand;
 groen betekent Cambuurwinst, paars gelijk en rood winst voor de tegenstander.
-Zonder voorspelling ontbreekt de strook.
+Zonder voorspelling ontbreekt de strook. De percentages staan elk midden
+onder hun eigen vlak: de kolommen van `.scc-preview-chances` krijgen de
+percentages als `fr` (template en browserverversing). Vanaf md staat onder
+elk percentage `winst`, `gelijk` of `verlies`, gezien vanuit Cambuur. De
+getoonde verdeling wijkt vast per wedstrijd iets af van de API en houdt
+elk vlak minimaal 5% (zie [API-Football](../integraties/api-football.md)).
 
 `Programma` is een gedempte compacte lijst met datum/tijd, wedstrijd en
 competitie, zonder gekleurde clubnamen, stand of vormblokjes. Op mobiel

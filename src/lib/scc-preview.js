@@ -104,6 +104,32 @@ export async function refreshPreview({ snapshot = {}, fixtures, teams = [], api,
 	return next;
 }
 
+// De API rekent in stappen van 5% en geeft vaak 0/50/50. Op de site wijkt
+// elke uitkomst daarom een paar procent af, vast per wedstrijd: dezelfde
+// sleutel geeft bij elke build en verversing dezelfde verdeling. Thuis en
+// uit schuiven elk -3 t/m +3, gelijk vangt het verschil op. Daarna krijgt
+// elk vlak minimaal 5%, afgesnoept van het grootste, en is de som 100.
+const PREDICTION_MIN = 5;
+export function displayPrediction(percent, key) {
+	let seed = [...key].reduce((hash, char) => Math.imul(hash ^ char.charCodeAt(0), 16777619), 2166136261) >>> 0;
+	const shift = () => {
+		seed = (seed + 0x6d2b79f5) >>> 0;
+		let value = Math.imul(seed ^ (seed >>> 15), seed | 1);
+		value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+		return ((value ^ (value >>> 14)) >>> 0) % 7 - 3;
+	};
+	const home = Math.round(percent.home) + shift();
+	const away = Math.round(percent.away) + shift();
+	const value = { home, draw: 100 - home - away, away };
+	const sides = ["home", "draw", "away"];
+	for (const side of sides) value[side] = Math.max(PREDICTION_MIN, value[side]);
+	const largest = () => sides.reduce((top, side) => value[side] > value[top] ? side : top);
+	for (let total = sides.reduce((sum, side) => sum + value[side], 0); total !== 100; total += total > 100 ? -1 : 1) {
+		value[largest()] += total > 100 ? -1 : 1;
+	}
+	return value;
+}
+
 export function previewRows(rows, snapshot = {}, now = new Date()) {
 	const updated = value => value ? new Intl.DateTimeFormat("nl-NL", {
 		timeZone: "Europe/Amsterdam", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -119,7 +145,7 @@ export function previewRows(rows, snapshot = {}, now = new Date()) {
 		return { ...row, preview: { home: team("home"), away: team("away"),
 			standingsAt: standings?.data ? standings.fetchedAt : null,
 			standingsUpdated: standings?.data ? updated(standings.fetchedAt) : "",
-			prediction: prediction?.data?.percent ?? null, predictionAt: prediction?.data ? prediction.fetchedAt : null,
+			prediction: prediction?.data?.percent ? displayPrediction(prediction.data.percent, previewKey(row)) : null, predictionAt: prediction?.data ? prediction.fetchedAt : null,
 			predictionUpdated: prediction?.data ? updated(prediction.fetchedAt) : "" } };
 	});
 }

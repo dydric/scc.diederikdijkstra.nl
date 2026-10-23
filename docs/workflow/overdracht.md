@@ -1,5 +1,74 @@
 # Overdracht
 
+## Seizoenskop uitgelijnd op desktop (23 oktober 2026)
+
+Vanaf 1024px staat de W/G/V-telling boven de cijferkaarten en begint de
+vormstrook boven de wedstrijdlijst, gelijk met de linkerrand van het kader. Controle:
+`npm run check:build` geslaagd, bekeken op 1024 en 1280px. Geen commit,
+push of deploy.
+
+## Cijfertegels gelijkgetrokken (23 oktober 2026)
+
+Topscorer, De nul, balbezit, xG en op doel staan nu als tegel met vlak en
+kader, even groot als het rapportcijfer ernaast (44px, op mobiel 36px). De
+kaartenblokjes op home volgen die maat. Zie
+[wedstrijden.md](../architectuur/wedstrijden.md#mobiele-weergave-23-oktober-2026).
+Controle: `npm run check:build` geslaagd, bekeken als iPhone 13 en op
+1280px. Geen commit, push of deploy.
+
+## Speeltijd uit de mobiele wedstrijdhero (23 oktober 2026)
+
+Onder 640px staat de speeltijd (bijvoorbeeld 90′+) niet meer onder de
+cijfertegels; op het gras was die slecht leesbaar. Vanaf 640px blijft hij
+onder de uitslag. Tussen de tegels en het laatste doelpunt staat
+16px extra ruimte. Controle: `npm run check:build` geslaagd. Geen commit,
+push of deploy.
+
+## Voorspelling verduidelijkt (23 oktober 2026)
+
+De percentages op de homehero staan midden onder hun eigen kleurvlak; vanaf
+md staat eronder winst, gelijk of verlies (vanuit Cambuur). `displayPrediction`
+in `scc-preview.js` laat de getoonde verdeling vast per wedstrijd een paar
+procent afwijken en geeft elk vlak minimaal 5%. Op de wedstrijdpagina staan
+formatie en trainer onder lg alleen in een open opstellingskop, onder de
+clubnaam. Controle: `npm test` (41 geslaagd, nieuwe test voor de
+verdeling), `npm run check:build` geslaagd, bekeken als iPhone 13 en op
+1280px. Geen commit, push of deploy.
+
+## Mobiele optimalisaties, ronde 2 (23 oktober 2026)
+
+Kerncijfers op de wedstrijdpagina en de wedstrijdgegevens (ronde, stadion,
+scheidsrechter) zijn onder 640px compact, zoals de seizoenscijfers op de
+home. De opstellingen klappen via hun eigen kop in en uit; onder lg is één
+ploeg tegelijk open (de losse balk is vervangen). De dunne verloopstrook
+staat nu ook op desktop direct; hover toont hem voluit. De knipperende
+cursor in de homehero is weg. Details: [wedstrijden.md](../architectuur/wedstrijden.md#mobiele-weergave-23-oktober-2026).
+Onder 640px heeft de wedstrijdhero dezelfde opzet als de homehero: de
+uitslag rechts per ploeg, en daaronder het verloop langs de scorekolom
+(alleen CSS, `scc-ui.css`).
+
+Controle: `npm test` (40 geslaagd), `npm run check:build` geslaagd,
+bekeken als iPhone 13, op 360, 700 en 1280px. Geen commit, push of deploy.
+
+## Mobiele optimalisaties (23 oktober 2026)
+
+Homehero onder 640px: één regel per ploeg (naam links, vorm rechts, stand
+eronder), thuis boven en uit onder; de thuis/uit-labels zijn alleen nog
+voor schermlezers. Datum, ploegen en klok delen de linkerrand; binnenmarge
+20px en kleinere tussenruimtes. Seizoenen: de vormstrook staat pas vanaf
+md, de telling W/G/V blijft. De vier cijferkaarten vormen onder 640px één
+paneel met vier regels (getal links, label en naam ernaast, zonder de
+toelichting). Op touch (`hover: none`) staat de verloopstrook van elke rij
+direct, 2px hoog met 30% gloed, en schuift hij omhoog zodra de rij in beeld
+komt (bestaand tempo). Wedstrijdpagina: de opstelling van de tegenstander
+staat onder lg ingeklapt (`data-lineup-fold`, `scc-match.js`; in ronde 2
+herzien). Zie
+[wedstrijden.md](../architectuur/wedstrijden.md#mobiele-weergave-23-oktober-2026).
+
+Controle: `npm test` (40 geslaagd), `npm run check:build` geslaagd,
+bekeken als iPhone 13 (390px, touch) en op 1280px. Geen commit, push of
+deploy.
+
 ## Conceptverslagen bij lokaal starten (23 oktober 2026)
 
 `npm run dev` voert nu via `predev` eenmaal `scc:new-reports` uit vóór

@@ -112,6 +112,16 @@
 
 		.js &[data-reveal]:not(.is-in) { opacity: 0; }
 		.js &[data-reveal].is-in { transition: opacity 500ms; }
+
+		/* In een tegel staat het getal net als een rapportcijfer (lg) in een
+		   eigen vlak met kader, even hoog en even groot. Met een toon krijgt
+		   het vlak een zachte ondergrond in die kleur. */
+		.scc-stat-big {
+			@apply inline-flex h-11 w-fit items-center justify-self-start rounded-[3px] px-3 text-[28px] leading-none tracking-[-0.02em];
+			background: color-mix(in oklab, var(--fg) 8%, transparent);
+			box-shadow: inset 0 0 0 1px var(--line-strong);
+		}
+		&:is([data-tone="pos"], [data-tone="neg"]) .scc-stat-big { background: var(--tone-soft); }
 	}
 
 	/* Een ploeg als sleutel: een stip in de clubkleur voor de naam. */
@@ -387,56 +397,49 @@
 	.scc-board-scorer-meta { @apply -mt-1 font-sans text-[13px] leading-4 md:text-[14px] md:leading-5; color: color-mix(in oklab, var(--fg) 60%, transparent); }
 
 
-	/* Smalle telefoons: namen voluit onder elkaar, makers onder de stand. */
-	@media (max-width: 400px) {
-		.scc-board-teams { grid-template-columns: minmax(0, 1fr); }
+	/* Telefoon (onder 640px), zoals de homehero: per ploeg een regel met de
+	   naam links en zijn doelpunten als cijfertegel rechts. De rechterkolom
+	   (56px) is de scorekolom: onder de eindstand loopt de doellijn omlaag langs de tussenstanden, nieuwste eerst. De makers
+	   staan links ernaast; de minuut is geel voor Cambuur, rood voor de
+	   tegenstander. Datum en aftrap delen de linkerrand. */
+	@media (max-width: 639px) {
+		.scc-board > .scc-board-when { @apply justify-start text-left; }
+		.scc-board-main { grid-template-columns: minmax(0, 1fr) 56px; column-gap: 12px; }
+		.scc-board-teams {
+			@apply relative gap-y-2 pb-0;
+			grid-template-columns: subgrid;
+		}
 		.scc-board-team[data-side] {
+			@apply justify-start text-left text-[28px] leading-9;
 			grid-column: 1;
-			justify-content: center;
-			text-align: center;
-			font-size: 24px;
+			overflow-wrap: anywhere;
 		}
 		.scc-board-team[data-side="away"] { grid-row: 2; }
-		.scc-board-score { grid-row: 3; }
-	}
-	@media (max-width: 639px) {
-		.scc-board-goal {
-			grid-template-columns: 56px minmax(0, 1fr);
-			column-gap: 8px;
-			min-height: 0;
-			padding-block: 8px;
-			align-items: start;
+		.scc-board-score {
+			display: contents;
+			&::after { content: none; }
+			.scc-flap { @apply justify-self-center text-[30px]; }
+			.scc-flap[data-side="home"] { grid-area: 1 / 2; }
+			.scc-flap[data-side="away"] { grid-area: 2 / 2; }
 		}
-		.scc-board-goal::before {
-			top: auto;
-			bottom: -4px;
-			height: 8px;
+		.scc-board-score .scc-board-dash { @apply hidden; }
+		.scc-board-fulltime { @apply hidden; }
+		.scc-board-line { @apply mt-4; }
+		.scc-board-goal, .scc-board-marker {
+			&::before { left: calc(100% - 28px); }
 		}
-		.scc-board-line > li:last-child::before { content: none; }
-		.scc-board-stand { grid-column: 1; }
+		.scc-board-goal { @apply min-h-0 items-start py-2; }
+		.scc-board-stand { grid-area: 1 / 2; }
 		.scc-board-scorer[data-side] {
-			grid-column: 2;
-			grid-row: 1;
-			flex-direction: row;
-			justify-content: flex-start;
-			text-align: left;
-			gap: 8px;
-		}
-		/* Uitgoals spiegelen de thuisrij: cijfer rechts, tekst er links naast. */
-		.scc-board-goal[data-side="away"] {
-			grid-template-columns: minmax(0, 1fr) 56px;
-			.scc-board-stand { grid-column: 2; }
-			.scc-board-scorer[data-side="away"] {
-				grid-column: 1;
-				flex-direction: row-reverse;
-				text-align: right;
-			}
+			@apply flex-row justify-start gap-2 text-left;
+			grid-area: 1 / 1;
 		}
 		.scc-board-scorer:not(:has(.scc-board-scorer-body)),
 		.scc-board-link { display: none; }
-		.scc-board-scorer-player { line-height: 28px; }
+		.scc-board-scorer-minute { @apply w-8 text-right; }
 		.scc-board-scorer-meta { margin-top: 0; }
-		.scc-board-marker { min-height: 32px; padding-block: 0; }
+		.scc-board-marker { @apply min-h-8 justify-items-start py-0; }
+		.scc-board-marker > span { @apply ps-10; grid-column: 1; background: none; }
 	}
 
 	.scc-board-dash { @apply relative z-10 block h-2 w-5 rounded-[1px]; background: color-mix(in oklab, var(--fg) 30%, var(--surface)); }
@@ -559,6 +562,35 @@
 		i { @apply block h-10 w-7 rounded-[4px]; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12); }
 		[data-kind="yellow"] { background: #f6c90e; }
 		[data-kind="red"] { background: var(--scc-red); }
+	}
+
+	/* Op een telefoon één paneel met een regel per cijfer, zoals de
+	   seizoenscijfers op de home: het getal links, label en toelichting
+	   ernaast. De toon kleurt alleen het getal; meters en herhalingen
+	   (data-echo) vervallen. */
+	@media (max-width: 639px) {
+		.scc-facts {
+			@apply grid-cols-1 gap-0 overflow-hidden;
+			border-radius: var(--radius);
+			background: var(--surface);
+			box-shadow: 0 0 0 1px var(--line), var(--panel-shadow);
+			> .scc-stat-card {
+				@apply col-span-1 items-center gap-x-4 gap-y-0.5 px-4 py-3;
+				grid-template-columns: 88px minmax(0, 1fr);
+				border-radius: 0;
+				background: none;
+				box-shadow: none;
+				& + .scc-stat-card { box-shadow: inset 0 1px 0 var(--line); }
+				> .scc-eyebrow { grid-area: 1 / 2; }
+				> .scc-fact-value { @apply mt-0 h-auto; grid-area: 1 / 1 / 4 / 2; }
+				> .scc-fact-main { @apply mt-0 text-[16px] leading-5; grid-column: 2; }
+				> .scc-fact-sub { @apply text-[13px] leading-5; grid-column: 2; }
+				> [data-echo], > .scc-meter { @apply hidden; }
+			}
+			> :last-child:nth-child(odd) { grid-column: auto; }
+			> .scc-stat-card :is(.scc-stat-big, .scc-rating) { @apply h-9 px-2 text-[22px]; }
+			.scc-fact-cards { @apply gap-1; i { @apply h-6 w-4 rounded-[3px]; } }
+		}
 	}
 
 	/* ── Tabellen: teamcijfers en rapportcijfers ─────────────────────── */

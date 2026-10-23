@@ -53,11 +53,16 @@ if (board) {
 		const panel = board.querySelector("[data-preview-prediction]");
 		panel.hidden = !preview?.prediction || Date.parse(first?.date) <= Date.now();
 		if (panel.hidden) return;
-		board.querySelector("[data-preview-chances]").replaceChildren(...["home", "draw", "away"].map(side => {
+		const chances = board.querySelector("[data-preview-chances]");
+		chances.style.gridTemplateColumns = ["home", "draw", "away"].map(side => `${preview.prediction[side]}fr`).join(" ");
+		chances.replaceChildren(...["home", "draw", "away"].map(side => {
 			const item = document.createElement("div");
 			const label = cell("span", `${side === "draw" ? "Gelijk" : first[side]} `);
 			label.className = "sr-only";
-			item.append(label, cell("strong", `${preview.prediction[side]}%`));
+			const outcome = cell("span", side === "draw" ? "gelijk" : first[side] === "SC Cambuur" ? "winst" : "verlies");
+			outcome.className = "scc-preview-outcome";
+			outcome.setAttribute("aria-hidden", "true");
+			item.append(label, cell("strong", `${preview.prediction[side]}%`), outcome);
 			return item;
 		}));
 		board.querySelector("[data-preview-bar]").replaceChildren(...["home", "draw", "away"].map(side => {

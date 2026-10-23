@@ -81,12 +81,38 @@ document.addEventListener('keydown', event => {
 });
 
 
+// De opstellingen: onder lg is steeds één ploeg open (eerst Cambuur) en
+// sluit openen van de ene de andere; vanaf lg staan beide open en doet de
+// kop niets. Na een klik blijft de geopende kop in beeld, ook als de
+// andere kaart erboven inklapt.
+const folds = [...document.querySelectorAll('[data-lineup-fold]')];
+const wide = matchMedia('(min-width: 1024px)');
+let clicked = null;
+const fold = () => folds.forEach((item) => { item.open = wide.matches || item.hasAttribute('data-cambuur'); });
+fold();
+wide.addEventListener('change', fold);
+folds.forEach((item) => {
+	item.querySelector(':scope > summary').addEventListener('click', (event) => {
+		if (wide.matches) event.preventDefault();
+		else clicked = item;
+	});
+	item.addEventListener('toggle', () => {
+		if (wide.matches || !item.open) return;
+		folds.forEach((other) => { if (other !== item) other.open = false; });
+		if (clicked === item) item.scrollIntoView({ block: 'start', behavior: still() ? 'auto' : 'smooth' });
+		clicked = null;
+	});
+});
+
 // Een speler op het veld opent zijn rij in de tabel (een details met name:
 // per tabel één open), scrolt ernaartoe en licht hem even op. Ook bij
-// een link met #speler-… in de adresbalk.
+// een link met #speler-… in de adresbalk; een ingeklapte opstelling gaat
+// dan eerst open.
 const openPlayer = (id, { scroll = true } = {}) => {
 	const row = document.getElementById(id);
 	if (!(row instanceof HTMLDetailsElement)) return;
+	const outer = row.parentElement.closest('[data-lineup-fold]');
+	if (outer) outer.open = true;
 	row.open = true;
 	row.classList.add('is-in');
 	if (scroll) row.scrollIntoView({ block: 'center', behavior: still() ? 'auto' : 'smooth' });

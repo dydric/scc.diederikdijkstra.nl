@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { footballClient } from "../../src/lib/scc-football-api.js";
-import { refreshPreview, previewRows, previewKey, matchFixture, readPrediction, readStandings } from "../../src/lib/scc-preview.js";
+import { refreshPreview, previewRows, previewKey, matchFixture, readPrediction, readStandings, displayPrediction } from "../../src/lib/scc-preview.js";
 
 const now = new Date("2026-10-21T12:00:00Z");
 const first = { date: "2026-10-24T18:45:00+02:00", home: "Willem II", away: "SC Cambuur", competition: "Eredivisie" };
@@ -25,7 +25,7 @@ test("Free-weigering blokkeert de werkende voorspelling niet en krijgt zeven dag
 	assert.equal(view.home.rank, null);
 	assert.equal(view.home.form, "DLLLL");
 	assert.equal(view.away.form, "DWDWD");
-	assert.equal(view.prediction.away, 50);
+	assert.equal(Math.abs(view.prediction.away - 50) <= 6, true);
 	calls.length = 0;
 	await refreshPreview({ snapshot, fixtures: [first], teams, api, now });
 	assert.equal(calls.length, 0);
@@ -98,4 +98,20 @@ test("Netlify-preview en ongepubliceerde deploy doen geen API- of Blob-aanroepen
 	await refresh(null, { deploy: { context: "deploy-preview", published: false } });
 	await refresh(null, { deploy: { context: "production", published: false } });
 	await refresh(null, undefined);
+});
+
+test("Voorspelling wijkt vast per wedstrijd iets af en houdt elk vlak minimaal 5%", () => {
+	const raw = { home: 0, draw: 50, away: 50 };
+	const shown = displayPrediction(raw, previewKey(first));
+	assert.deepEqual(displayPrediction(raw, previewKey(first)), shown);
+	assert.equal(shown.home + shown.draw + shown.away, 100);
+	for (const value of Object.values(shown)) assert.equal(Number.isInteger(value) && value >= 5, true);
+	const keys = Array.from({ length: 40 }, (_, i) => previewKey({ ...first, date: `2026-11-${String(i % 28 + 1).padStart(2, "0")}T20:00:00+01:00`, home: `Ploeg ${i}` }));
+	const results = keys.map(key => displayPrediction(raw, key));
+	assert.equal(results.some(item => item.draw !== 50 || item.away !== 50), true);
+	for (const item of results) {
+		assert.equal(item.home + item.draw + item.away, 100);
+		assert.equal(Math.min(item.home, item.draw, item.away) >= 5, true);
+		assert.equal(Math.abs(item.away - 50) <= 6, true);
+	}
 });

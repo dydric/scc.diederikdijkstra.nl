@@ -13,9 +13,11 @@
 {% set p = row.preview.prediction %}
 <div class="scc-preview-prediction" data-preview-prediction{% if not p %} hidden{% endif %}>
 	<div class="scc-preview-bar" data-preview-bar aria-hidden="true">{% for side in ['home', 'draw', 'away'] %}<span data-side="{{ side }}"{% if side != 'draw' and row[side] == 'SC Cambuur' %} data-cambuur{% endif %} style="width: {{ p[side] if p else 0 }}%"></span>{% endfor %}</div>
-	<div class="scc-preview-chances" data-preview-chances>
+	{#- Elk percentage staat midden onder zijn eigen vlak; vanaf md staat
+	    eronder wat het betekent voor Cambuur. #}
+	<div class="scc-preview-chances" data-preview-chances{% if p %} style="grid-template-columns: {{ p.home }}fr {{ p.draw }}fr {{ p.away }}fr"{% endif %}>
 	{% for side in ['home', 'draw', 'away'] %}
-		<div><span class="sr-only">{{ 'Gelijk' if side == 'draw' else row[side] }} </span><strong>{{ p[side] if p }}%</strong></div>
+		<div><span class="sr-only">{{ 'Gelijk' if side == 'draw' else row[side] }} </span><strong>{{ p[side] if p }}%</strong><span class="scc-preview-outcome" aria-hidden="true">{{ 'gelijk' if side == 'draw' else ('winst' if row[side] == 'SC Cambuur' else 'verlies') }}</span></div>
 	{% endfor %}
 	</div>
 </div>
