@@ -1,5 +1,17 @@
 # Overdracht
 
+## Conceptverslagen bij lokaal starten (23 oktober 2026)
+
+`npm run dev` voert nu via `predev` eenmaal `scc:new-reports` uit vóór
+Netlify Dev start. De taak leest de officiële uitslagenpagina, beperkt zich
+tot competitie- en bekerduels van het huidige seizoen en maakt alleen
+ontbrekende Markdown-verslagen aan. Bestaande teksten blijven staan;
+nieuwe paden staan in de terminal. Bij een bron- of netwerkfout verschijnt
+een waarschuwing en start de server alsnog. Een losse controle kan met
+`npm run scc:new-reports`. De actuele clubpagina gaf op 23 oktober geen
+ontbrekende wedstrijden. Controle: `npm test` (40 geslaagd) en
+`npm run check:build` geslaagd. Geen dev-server, commit, push of deploy.
+
 ## Zoekmachine-indexering uitgeschakeld (22 oktober 2026)
 
 Alle HTML-pagina's krijgen `noindex, nofollow` via de gedeelde layout.

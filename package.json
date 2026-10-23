@@ -13,10 +13,12 @@
     "w:js": "esbuild src/js/core.js 'src/js/pages/*.js' 'src/js/components/*.js' --outbase=src/js --outdir=_site/js --bundle --splitting --format=esm --chunk-names=chunks/[name]-[hash] --watch",
     "b:js": "esbuild src/js/core.js 'src/js/pages/*.js' 'src/js/components/*.js' --outbase=src/js --outdir=_site/js --bundle --splitting --format=esm --chunk-names=chunks/[name]-[hash] --minify",
     "watch": "cross-env NODE_ENV=development npm-run-all --parallel w:* ",
+    "predev": "npm run scc:new-reports",
     "dev": "npx netlify dev",
     "build": "cross-env NODE_ENV=production npm-run-all clean --parallel b:tw b:js --sequential b:11ty",
     "scc:matchdata": "node --env-file=.env tools/scripts/scc-matchdata.mjs",
     "scc:upcoming": "node tools/scripts/scc-upcoming.mjs",
+    "scc:new-reports": "node tools/scripts/scc-new-reports.mjs",
     "check:build": "node tools/scripts/check-build.mjs",
     "test": "node --test tools/tests/*.test.mjs"
   },

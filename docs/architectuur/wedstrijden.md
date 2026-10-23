@@ -128,6 +128,16 @@ tot en met 24 maart 2026: thuis en uit, plus de bekerwedstrijd tegen
 RKC Waalwijk. Dit is de aangeleverde selectie tot de promotie, niet
 automatisch een volledige seizoenskalender.
 
+Bij `npm run dev` draait eenmaal vooraf `scc:new-reports`. De taak leest
+de [officiële uitslagen](https://cambuur.nl/eerste-elftal/uitslagen/) en
+maakt voor ontbrekende competitie- en KNVB-bekerwedstrijden van het huidige
+seizoen een Markdown-bestand in `src/scc/<seizoen>/`. Oefenwedstrijden blijven
+buiten de collectie. De taak herkent bestaande ploegnaamvarianten, raakt
+bestaande verslagen niet aan en meldt nieuwe paden in de terminal. Een
+nieuw bestand heeft datum, ploegen, competitie en eindstand, maar nog geen
+eigen tekst, video of API-data. De bestaande detailpagina toont dan
+`Verslag volgt nog.` Bij een nieuw seizoen maakt de taak ook de mapdata aan.
+
 `2026-2027/` bevat negen wedstrijdbestanden van 7 augustus tot en met
 18 oktober 2026. Ze hebben alle negen een verslag. De
 standaardcompetitie is `Eredivisie`.
