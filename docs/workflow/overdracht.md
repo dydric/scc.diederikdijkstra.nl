@@ -1,5 +1,19 @@
 # Overdracht
 
+## Lucht naar de zonnestand, lampen altijd aan (23 oktober 2026)
+
+De masten van de tribune branden nu altijd. De lucht erachter volgt de
+zonnestand boven Leeuwarden midden in de wedstrijd (aftrap plus 45
+minuten, `sky()` in `js/modules/scc/stand.js`): blauw overdag, een
+oranje-paarse horizon in de schemering, donker in de nacht. stand.js zet
+`--sky-top` en `--sky-horizon` op `.scc-stand`; de CSS laat de lucht in een
+lang verloop (tot 520px) in de pagina opgaan, zonder zichtbare overgang.
+Bundels en nevel zijn sterker naarmate het donkerder is; flitsers alleen in
+het donker. Het veld (turf.js) is niet aangepast: dat houdt avondlicht of
+middagschaduw. Controle: `npm run check:build` geslaagd, bekeken op 1920px
+(16:45 eind augustus, 20:00 begin augustus, 20:00 november). Geen commit,
+push of deploy.
+
 ## Stadion op de wedstrijdpagina's: thuis en uit (23 oktober 2026)
 
 De wedstrijdpagina's hebben nu ook de tribune achter logo en bord en het

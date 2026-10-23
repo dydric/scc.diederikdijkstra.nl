@@ -16,8 +16,13 @@
 //   stand(element, hero, { result })
 //                           tekent het stadion in element en volgt het
 //                           licht van het veld in de hero (data-light van
-//                           turf.js): avond met de masten aan en af en toe
-//                           een flitser, middag met de schaduw van het dak.
+//                           turf.js): avond of middag met de schaduw van
+//                           het dak. De masten branden altijd; de lucht
+//                           volgt de zon boven Leeuwarden midden in de
+//                           wedstrijd (data-kickoff plus 45 minuten): blauw
+//                           overdag, schemering, donker 's avonds. Hoe
+//                           donkerder, hoe sterker de bundels en de nevel;
+//                           flitsers alleen in het donker.
 //                           result (winst, gelijk, verlies) kleurt de
 //                           stemming: bij winst meer flitsers, bij verlies
 //                           minder en meer lege plekken. Zet --stand-front
@@ -87,6 +92,47 @@ function shirt(pick) {
 	return CROWD[1][1];
 }
 
+// De hoogte van de zon in graden boven Leeuwarden op een moment (een
+// vereenvoudigde zonnestand, op een paar tienden van een graad nauwkeurig).
+function sunAltitude(date, lat = 53.2, lon = 5.8) {
+	const rad = Math.PI / 180;
+	const d = date / 864e5 - 10957.5;
+	const g = (357.529 + .98560028 * d) * rad;
+	const q = 280.459 + .98564736 * d;
+	const L = (q + 1.915 * Math.sin(g) + .02 * Math.sin(2 * g)) * rad;
+	const e = (23.439 - 3.6e-7 * d) * rad;
+	const dec = Math.asin(Math.sin(e) * Math.sin(L));
+	const ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L));
+	const hour = ((18.697374558 + 24.06570982441908 * d) % 24) * 15 + lon;
+	const ha = hour * rad - ra;
+	return Math.asin(Math.sin(lat * rad) * Math.sin(dec) + Math.cos(lat * rad) * Math.cos(dec) * Math.cos(ha)) / rad;
+}
+
+// De lucht per zonnestand: boven en aan de horizon (bij de dakrand),
+// gedempt naar het donker van de site; dark is 0 overdag en 1 's nachts.
+const SKY = [
+	[-14, [7, 9, 15], [12, 17, 30], 1],
+	[-8, [10, 18, 44], [24, 36, 72], .92],
+	[-3, [20, 34, 78], [92, 64, 86], .75],
+	[2, [34, 66, 120], [176, 120, 82], .5],
+	[10, [44, 92, 156], [128, 160, 196], .2],
+	[25, [50, 104, 172], [150, 180, 212], 0],
+];
+export function sky(kickoff) {
+	const time = Date.parse(kickoff);
+	if (isNaN(time)) return { top: SKY[0][1], horizon: SKY[0][2], dark: 1 };
+	const altitude = sunAltitude(time + 45 * 6e4);
+	const i = SKY.findIndex(([at]) => at > altitude);
+	if (i <= 0) {
+		const [, top, horizon, dark] = SKY[i === 0 ? 0 : SKY.length - 1];
+		return { top, horizon, dark };
+	}
+	const [a, b] = [SKY[i - 1], SKY[i]];
+	const t = (altitude - a[0]) / (b[0] - a[0]);
+	const mix = (x, y) => x.map((v, k) => Math.round(v + (y[k] - v) * t));
+	return { top: mix(a[1], b[1]), horizon: mix(a[2], b[2]), dark: a[3] + (b[3] - a[3]) * t };
+}
+
 const mastUnit = width => Math.max(.5, Math.min(.78, width / 1440 * .78));
 
 // De tribune zelf: hoeken, ringen met publiek en dak. Scherp getekend;
@@ -98,13 +144,15 @@ function scene(ctx, width, height, frame, evening, random, { result }) {
 	// Na een nederlaag is een deel eerder naar huis.
 	const leave = result === 'verlies' ? .16 : 0;
 
-	// De open hoeken: donkere gevelwanden die in het donker verdwijnen.
+	// De open hoeken: gevelwanden die zacht uit de lucht opkomen en in het
+	// donker verdwijnen, zonder harde rand.
 	for (const [from, to] of [[0, left - 10], [right + 10, width]]) {
-		const wall = ctx.createLinearGradient(0, SEATS, 0, height * .6);
-		wall.addColorStop(0, evening ? '#0d1014' : '#171b20');
-		wall.addColorStop(1, 'rgb(13 16 20 / 0)');
+		const wall = ctx.createLinearGradient(0, ROOF, 0, height * .6);
+		wall.addColorStop(0, 'rgb(8 10 13 / 0)');
+		wall.addColorStop(.25, 'rgb(8 10 13 / .45)');
+		wall.addColorStop(1, 'rgb(8 10 13 / 0)');
 		ctx.fillStyle = wall;
-		ctx.fillRect(from, SEATS, to - from, height);
+		ctx.fillRect(from, ROOF, to - from, height);
 	}
 
 	// De ringen: stoelen in blauw of geel, met daarover het publiek.
@@ -176,7 +224,7 @@ function towers(ctx, width, { masts }, evening) {
 		line(-24, 36, 2, 8, .9);
 		line(-16, 50, 10, 50, 1.2);
 		line(10, 58, 34, 74, 1.6);
-		ctx.fillStyle = evening ? '#fffaf0' : 'rgb(40 44 50 / .9)';
+		ctx.fillStyle = '#fffaf0';
 		for (const [u0, v0] of [[11, 61], [15, 67]]) {
 			for (let i = 0; i < 6; i++) {
 				const [x, y] = at(u0 + i * 3.9, v0 + i * 2.6);
@@ -202,7 +250,7 @@ function prepare(canvas) {
 // het canvas werkt in elke browser; ctx.filter niet). Zo ligt de
 // scherptediepte bij de hero. Light draagt de masten, het licht en de
 // nevel, scherp en opgeteld (mix-blend-mode: screen).
-function draw(back, light, mode, edges, options) {
+function draw(back, light, mode, edges, options, dark) {
 	const width = back.clientWidth, height = back.clientHeight;
 	const evening = mode !== 'middag';
 	const frame = layout(width, edges);
@@ -230,10 +278,12 @@ function draw(back, light, mode, edges, options) {
 	ctx = prepare(light);
 	towers(ctx, width, frame, evening);
 
-	// Licht en nevel.
+	// Licht en nevel; overdag valt het minder op dan in het donker.
 	ctx.globalCompositeOperation = 'lighter';
 	const unit = mastUnit(width);
+	const amount = .35 + .65 * dark;
 	const glow = (x, y, radius, color, alpha) => {
+		alpha *= amount;
 		const fill = ctx.createRadialGradient(x, y, 0, x, y, radius);
 		fill.addColorStop(0, `rgb(${color} / ${alpha})`);
 		fill.addColorStop(.3, `rgb(${color} / ${alpha * .25})`);
@@ -241,13 +291,13 @@ function draw(back, light, mode, edges, options) {
 		ctx.fillStyle = fill;
 		ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
 	};
-	if (evening) {
+	{
 		for (const [x0, d] of masts) {
 			const head = [x0 + d * 24 * unit, ROOF - 68 * unit];
 			// De bundel waaiert in de nevel uit naar het veld; vier lagen van
 			// smal naar breed geven hem zachte randen.
 			const beam = ctx.createLinearGradient(0, head[1], 0, front + 120);
-			beam.addColorStop(0, 'rgb(255 240 210 / .03)');
+			beam.addColorStop(0, `rgb(255 240 210 / ${.03 * amount})`);
 			beam.addColorStop(1, 'rgb(255 240 210 / 0)');
 			ctx.fillStyle = beam;
 			const aim = head[0] + d * (right - left) * .3;
@@ -269,10 +319,11 @@ function draw(back, light, mode, edges, options) {
 		}
 		const spill = ctx.createLinearGradient(0, upper[0], 0, front);
 		spill.addColorStop(0, 'rgb(255 240 210 / 0)');
-		spill.addColorStop(1, 'rgb(255 240 210 / .14)');
+		spill.addColorStop(1, `rgb(255 240 210 / ${.14 * amount})`);
 		ctx.fillStyle = spill;
 		ctx.fillRect(left, upper[0], right - left, front - upper[0]);
-	} else {
+	}
+	if (!evening) {
 		// Middag: zon op de onderring.
 		const sun = ctx.createLinearGradient(0, lower[0], 0, front);
 		sun.addColorStop(0, 'rgb(255 236 200 / .03)');
@@ -294,6 +345,7 @@ export function stand(element, hero, options = {}) {
 	});
 	const still = matchMedia('(prefers-reduced-motion: reduce)');
 	const mode = () => panel?.dataset.light ?? 'avond';
+	const air = () => sky(panel?.dataset.kickoff);
 	// De randen van de hero binnen de tribunelaag.
 	const edges = () => {
 		if (!hero) return undefined;
@@ -304,10 +356,13 @@ export function stand(element, hero, options = {}) {
 
 	const render = () => {
 		const at = edges();
-		const key = `${canvas.clientWidth}:${at}:${mode()}`;
+		const { top, horizon, dark } = air();
+		const key = `${canvas.clientWidth}:${at}:${mode()}:${top}:${horizon}`;
 		if (key === drawn) return;
 		drawn = key;
-		draw(canvas, light, mode(), at, options);
+		element.style.setProperty('--sky-top', `rgb(${top})`);
+		element.style.setProperty('--sky-horizon', `rgb(${horizon})`);
+		draw(canvas, light, mode(), at, options, dark);
 		element.parentElement.style.setProperty('--stand-front', `${layout(canvas.clientWidth, at).front}px`);
 		canvas.dataset.ready = light.dataset.ready = '';
 	};
@@ -317,16 +372,16 @@ export function stand(element, hero, options = {}) {
 		width = canvas.clientWidth;
 		render();
 	}).observe(canvas));
-	if (panel) new MutationObserver(render).observe(panel, { attributes: true, attributeFilter: ['data-light'] });
+	if (panel) new MutationObserver(render).observe(panel, { attributes: true, attributeFilter: ['data-light', 'data-kickoff'] });
 
-	// Flitsers: 's avonds af en toe een telefoon op de tribune, niet achter
-	// het logo. Bij winst vaker, bij verlies minder.
+	// Flitsers: in het donker af en toe een telefoon op de tribune, niet
+	// achter het logo. Bij winst vaker, bij verlies minder.
 	let visible = true;
 	new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(element);
 	const flash = () => {
 		const pace = { winst: .6, verlies: 2.2 }[options.result] ?? 1;
 		setTimeout(flash, (700 + Math.random() * 2600) * pace);
-		if (!visible || document.hidden || still.matches || mode() === 'middag') return;
+		if (!visible || document.hidden || still.matches || air().dark < .6) return;
 		const { left, right, upper, lower } = layout(element.clientWidth, edges());
 		const x = left + Math.random() * (right - left);
 		const y = upper[0] + Math.random() * (lower[1] - upper[0]);

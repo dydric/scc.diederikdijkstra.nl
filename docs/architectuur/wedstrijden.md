@@ -11,7 +11,8 @@ Achter logo en hero staat altijd de noordtribune van het Kooi
 stoelen onder het publiek, de vakwerkmasten. De tribune is onscherp
 (CSS-blur op het canvas), even breed als de hero en sluit aan op de
 bovenrand van de hero: de voorspellingsbalk op home, de tijdlijn op de
-wedstrijdpagina. Het licht volgt `data-light` van het veld; de uitslag
+wedstrijdpagina. De masten branden altijd; de lucht volgt de zonnestand
+midden in de wedstrijd (`sky()`). Het licht volgt `data-light` van het veld; de uitslag
 bepaalt hoe vaak het flitst en hoe vol de tribune nog is. In de marges
 naast de inhoud staat publiek met trage geel-blauwe rook
 (`js/modules/scc/sides.js`); bij uitwedstrijden staat dat publiek achter

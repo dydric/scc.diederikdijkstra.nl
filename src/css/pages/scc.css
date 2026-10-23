@@ -34,14 +34,19 @@
     left: calc(50% - 50vw);
     width: 100vw;
     mask-image: linear-gradient(#000 45%, transparent);
-    /* Nachtlucht boven het veld, met het schijnsel van de lampen en de
-       hero; zonder JS staat alleen deze gloed. */
+    /* De lucht boven het stadion: stand.js zet --sky-top en --sky-horizon
+       naar de zonnestand midden in de wedstrijd; zonder JS een nachtlucht.
+       Onder de dakrand loopt hij in een lang verloop weg in de pagina, zodat
+       je de overgang niet ziet, met het schijnsel van de lampen. */
     background:
       radial-gradient(50% 42% at 50% 30%, rgb(255 240 205 / 0.07), transparent),
-      linear-gradient(color-mix(in oklab, var(--scc-blue) 12%, var(--page-bg)), var(--page-bg));
-  }
-  :is(.scc-archive, .scc-match):has([data-light="middag"]) .scc-stand {
-    background: linear-gradient(color-mix(in oklab, #8fa3c0 9%, var(--page-bg)), var(--page-bg));
+      linear-gradient(
+        color-mix(in oklab, var(--sky-top, rgb(7 9 15)) 58%, var(--page-bg)),
+        color-mix(in oklab, var(--sky-horizon, rgb(12 17 30)) 46%, var(--page-bg)) 80px,
+        color-mix(in oklab, var(--sky-horizon, rgb(12 17 30)) 26%, var(--page-bg)) 170px,
+        color-mix(in oklab, var(--sky-horizon, rgb(12 17 30)) 12%, var(--page-bg)) 280px,
+        color-mix(in oklab, var(--sky-horizon, rgb(12 17 30)) 4%, var(--page-bg)) 400px,
+        var(--page-bg) 520px);
   }
   /* Het logo ligt midden over dakrand en bovenring (het dak eindigt op
      88px); de hero sluit direct aan op de voorste rij (--stand-front, gezet
