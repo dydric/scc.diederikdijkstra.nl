@@ -781,26 +781,29 @@
 	.scc-rating-minutes { grid-area: minutes; @apply text-right font-mono text-[11px] leading-4; color: color-mix(in oklab, var(--fg) 65%, transparent); }
 
 	/* Uitgeklapt: een eigen vlak onder de rij, de wissel als terminalregel,
-	   de cijfers als tegels van minstens 128px. */
+	   dan een compacte lijst: per cijfer één regel met label, getal en
+	   toelichting (in de toon van dat cijfer). Vaste kolommen houden getallen
+	   en toelichtingen onder elkaar; is de tabel breed genoeg, dan twee
+	   lijsten naast elkaar. */
 	.scc-player {
-		@apply grid gap-3 px-5 pt-3 pb-5;
+		@apply grid gap-2 px-5 pt-2.5 pb-3;
 		background: var(--surface-2);
 		box-shadow: inset 0 1px 0 var(--line);
 	}
 	.scc-player-sub { @apply gap-x-4; }
 
-	.scc-player-facts { @apply grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-2; }
+	.scc-player-facts { @apply grid gap-x-8; }
+	@container (min-width: 520px) { .scc-player-facts { @apply grid-cols-2; } }
 
 	.scc-player-fact {
-		@apply grid content-start gap-1 rounded-(--radius) p-3;
-		background: var(--surface);
-		box-shadow: 0 0 0 1px var(--line);
+		@apply grid items-baseline gap-x-3 py-1.5;
+		grid-template-columns: minmax(0, 1fr) 32px 84px;
+		box-shadow: inset 0 -1px 0 var(--line);
 		dt { @apply truncate font-mono text-[11px] leading-4 uppercase; color: color-mix(in oklab, var(--fg) 65%, transparent); }
-		.scc-meter { @apply mt-1.5 h-1; }
 		&[data-tone="pos"] .scc-player-note, &[data-tone="neg"] .scc-player-note { color: var(--tone-text); }
 	}
-	.scc-player-value { @apply mt-1 font-data text-[28px] leading-8 tracking-[-0.02em]; font-weight: 700; }
-	.scc-player-note { @apply font-sans text-[13px] leading-5 font-bold; color: color-mix(in oklab, var(--fg) 55%, transparent); }
+	.scc-player-value { @apply text-right font-data text-[16px] leading-6; font-weight: 700; }
+	.scc-player-note { @apply truncate font-sans text-[13px] leading-5 font-bold; color: color-mix(in oklab, var(--fg) 55%, transparent); }
 
 	/* Het cijfer als dunne lijn onder de rij, van 5 tot 10. */
 	.scc-rating-bar {

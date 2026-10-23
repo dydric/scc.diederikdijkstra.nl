@@ -330,9 +330,8 @@
 {% endmacro %}
 
 {# De cijfers van één speler, in zijn uitklaprij in de tabel: de wissel
-   als terminalregel, dan een tegel per cijfer (label, getal, toelichting)
-   en waar iets een verhouding is een meter in de toon van dat cijfer.
-   Minuten staan al in de rij. #}
+   als terminalregel, dan een regel per cijfer (label, getal, toelichting
+   in de toon van dat cijfer). Minuten staan al in de rij. #}
 {% macro playerDetail(player) %}
 <div class="scc-player">
 	{% if player.on or player.off %}
@@ -345,7 +344,6 @@
 			<dt>{{ fact.label }}</dt>
 			<dd class="scc-player-value">{{ fact.value }}</dd>
 			{% if fact.note %}<dd class="scc-player-note">{{ fact.note }}</dd>{% endif %}
-			{% if fact.share != null %}<dd class="scc-meter" style="--value: {{ fact.share }}%" aria-hidden="true"><i></i></dd>{% endif %}
 		</div>
 		{% endif %}{% endfor %}
 	</dl>

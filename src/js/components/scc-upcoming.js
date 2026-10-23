@@ -1,4 +1,6 @@
 import { turf } from "../modules/scc/turf.js";
+import { stand } from "../modules/scc/stand.js";
+import { sides } from "../modules/scc/sides.js";
 
 const board = document.querySelector("[data-upcoming]");
 
@@ -19,6 +21,12 @@ if (board) {
 	// bepaalt avond- of middaglicht en verandert mee met het programma.
 	const main = board.querySelector("[data-turf]");
 	const field = main && turf([main]);
+	// De tribune eromheen volgt hetzelfde licht.
+	const crowd = document.querySelector("[data-stand]");
+	if (crowd) stand(crowd, board);
+	// Rook en vlaggen in de marges, naast de inhoud van de pagina.
+	const margins = document.querySelector("[data-sides]");
+	if (margins) sides(margins, margins.closest(".scc-workspace"));
 	const units = Object.fromEntries([...clock.querySelectorAll("[data-unit]")]
 		.map(node => [node.dataset.unit, node]));
 	const cell = (tag, value) => {

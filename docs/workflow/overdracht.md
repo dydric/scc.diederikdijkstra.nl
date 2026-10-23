@@ -1,5 +1,60 @@
 # Overdracht
 
+## Stadion op de wedstrijdpagina's: thuis en uit (23 oktober 2026)
+
+De wedstrijdpagina's hebben nu ook de tribune achter logo en bord en het
+publiek in de marges (`src/scc/view/match.njk`, `js/components/scc-match.js`).
+Bovenin staat altijd het Kooi, ook bij uitwedstrijden; `data-result` kleurt
+de stemming: bij winst vaker flitsers, bij verlies minder en meer lege
+plekken. Het verschil tussen thuis en uit zit in de marges (`data-venue`
+uit `story.side`): thuis de harde kern, uit hetzelfde geel-blauwe publiek
+achter de donkere hekken van het uitvak. Een eerdere uitversie met een
+grijs vreemd stadion en ledstrook is op verzoek weggehaald (te grijs en
+wit). Het licht volgt het veld: avond of middag op basis van de aftrap. De
+CSS-regels voor tribune en kop gelden nu voor `.scc-archive` en
+`.scc-match`. Controle: `npm test` en `npm run check:build` geslaagd,
+bekeken op 1920px (thuis avond met winst, thuis middag, thuis verlies, uit
+avond). Geen commit, push of deploy.
+
+## Harde kern en rook naast de pagina (23 oktober 2026)
+
+Op home staat achter alles een vaste laag (`js/modules/scc/sides.js`,
+`.scc-sides` in `css/pages/scc.css`) die alleen in de marges naast de
+inhoud zichtbaar is. Twee canvassen: het publiek (stilstaand, een dichte
+donkere massa in perspectief met hier en daar geel, sjaals en armen omhoog,
+`blur(4px)`) en trage gele en blauwe rook die omhoog drijft (`blur(10px)`),
+het enige dat beweegt. Vlaggen en vuurwerk zijn op verzoek weer weggehaald:
+te opvallend. Alleen bij een marge van minstens 64px (vooral vanaf ongeveer
+1440px); verborgen tabblad pauzeert, prefers-reduced-motion zet de rook
+stil. Controle: `npm run check:build` geslaagd, bekeken op 1920px. Geen
+commit, push of deploy.
+
+## Kooi Stadion achter de hero (23 oktober 2026)
+
+Op home staat achter de hero de noordtribune van het Kooi Stadion als
+sfeerbeeld (`js/modules/scc/stand.js`, `.scc-stand` in `css/pages/scc.css`).
+Twee lagen: de tribune op een canvas dat de CSS onscherp zet (`blur`,
+`ctx.filter` werkt niet in elke browser), en een scherpe lichtlaag
+(`mix-blend-mode: screen`) met de vakwerkmasten, gloed, bundels en nevel.
+De tribune is even breed als de hero en sluit direct aan op de
+voorspellingsbalk (`--stand-front`, gezet door stand.js). Blauwe stoeltjes,
+gele stoelen met boven WIJ ZIJN en onder CAMBUUR; bijna uitverkocht, dus
+het publiek bedekt de meeste stoelen en aan de zijkanten zijn er meer leeg.
+Het logo ligt over dakrand en bovenring, boven het lege middelste vak. Het
+licht volgt `data-light` van het veld: avond met masten aan en af en toe
+een flitser (niet bij prefers-reduced-motion), middag met masten uit. In de
+hero heeft het blok met datum en ploegen geen bovenpadding meer. Controle:
+`npm run check:build` geslaagd, bekeken op 500 en 1440px; de middagstand
+is niet bekeken. Geen commit, push of deploy.
+
+## Spelerdetail compact (23 oktober 2026)
+
+De uitklaprij van een speler toont zijn cijfers als compacte lijst (label,
+getal, toelichting per regel) in plaats van tegels met meters; op een
+brede tabel in twee kolommen. Op een telefoon ongeveer een derde van de
+oude hoogte. Controle: `npm test` (41 geslaagd), `npm run check:build`
+geslaagd, bekeken als iPhone 13 en op 1280px. Geen commit, push of deploy.
+
 ## Seizoenskop uitgelijnd op desktop (23 oktober 2026)
 
 Vanaf 1024px staat de W/G/V-telling boven de cijferkaarten en begint de

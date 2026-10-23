@@ -14,6 +14,10 @@ edges: false
 {% from "scc/preview.njk" import teamContext, prediction %}
 {% set archief = collections.scc | sccArchive %}
 <main class="scc-workspace scc-archive">
+	{#- De tribune achter logo en hero (js/modules/scc/stand.js). #}
+	<div class="scc-stand" data-stand aria-hidden="true"></div>
+	{#- Rook en vlaggen in de marges naast de pagina (js/modules/scc/sides.js). #}
+	<div class="scc-sides" data-sides aria-hidden="true"></div>
 	{{ siteHeader() }}
 	<h1 class="sr-only">SC Cambuur: komende wedstrijden en wedstrijdarchief</h1>
 

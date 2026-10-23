@@ -26,3 +26,12 @@ houdt het meeste visuele gewicht.
 De homehero en het wedstrijdbord liggen op een procedureel WebGL-voetbalveld
 (`js/modules/scc/turf.js`, `css/components/scc-turf.css`): avondlicht vanaf
 18:00 aftrap, anders middagschaduw. Zie [system.md](../paginas/system.md#voetbalgras-vergelijking).
+Achter de homehero staat de noordtribune van het Kooi Stadion als onscherp
+sfeerbeeld, even breed als de hero (`js/modules/scc/stand.js`, `.scc-stand`
+in `css/pages/scc.css`): publiek over WIJ ZIJN en CAMBUUR in gele stoelen,
+de vakwerkmasten en het logo over het dak. Die volgt hetzelfde licht; de
+hero sluit aan op de voorste rij (`--stand-front`). In de marges naast de
+inhoud staat een onscherp publiek met trage geel-blauwe rook
+(`js/modules/scc/sides.js`, `.scc-sides`). De wedstrijdpagina's hebben
+dezelfde lagen: bovenin altijd het Kooi, bij uit staat het publiek in de
+marges achter de hekken van het uitvak; de uitslag kleurt de stemming.

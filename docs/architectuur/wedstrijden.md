@@ -4,6 +4,19 @@ Opgezet op 19 oktober 2026 uit de door de gebruiker aangeleverde tekst
 over Cambuurs promotieseizoen. Er zijn eenvoudige
 overzichts- en wedstrijdpagina's om de collectie te bekijken.
 
+## Stadion rond de hero (23 oktober 2026)
+
+Achter logo en hero staat altijd de noordtribune van het Kooi
+(`js/modules/scc/stand.js`): blauwe stoelen, WIJ ZIJN en CAMBUUR in gele
+stoelen onder het publiek, de vakwerkmasten. De tribune is onscherp
+(CSS-blur op het canvas), even breed als de hero en sluit aan op de
+bovenrand van de hero: de voorspellingsbalk op home, de tijdlijn op de
+wedstrijdpagina. Het licht volgt `data-light` van het veld; de uitslag
+bepaalt hoe vaak het flitst en hoe vol de tribune nog is. In de marges
+naast de inhoud staat publiek met trage geel-blauwe rook
+(`js/modules/scc/sides.js`); bij uitwedstrijden staat dat publiek achter
+de hekken van het uitvak.
+
 ## Mobiele weergave (23 oktober 2026)
 
 Homehero onder 640px: per ploeg één regel met de naam links (28px, bij
@@ -49,6 +62,13 @@ Met toon `pos` of `neg` is het vlak de zachte toonkleur. De geel/rood-blokjes
 op home volgen dezelfde maat. Onder 640px zijn al deze tegels 36px hoog met
 22px cijfers. Dit geldt voor de seizoenscijfers op home en de kerncijfers
 op de wedstrijdpagina.
+
+Spelerdetail (uitklaprij in de tabel): onder de wisselregel staat per
+cijfer één regel met label (mono), getal (Space Mono 16px) en toelichting
+in de toon van het cijfer, met vaste kolommen (1fr, 32px, 84px) en een
+haarlijn eronder. Vanaf een tabelbreedte van 520px (containerquery) staan
+twee lijsten naast elkaar. De tegels en meters zijn vervallen; `share`
+bepaalt nog alleen de toon.
 
 Opstellingen: `ratings(..., fold = true)` maakt van de tabelkaart een
 `<details data-lineup-fold>` met de kop als summary (+ / −). Cambuur staat
@@ -455,9 +475,10 @@ formatie, basis en invallers (accordion per speler, per tabel één open via `na
 veldplekken (de bekerwedstrijd tegen RKC) ontbreekt het veld en staat de
 basiself per linie boven de tabel. Hetzelfde nummertje staat in de tabellen, zodat veld en tabel bij elkaar horen. Onder lg
 staat alles onder elkaar. Een uitgeklapte
-speler toont de wissel als terminalregel en een tegel per cijfer
-(label, getal, toelichting); schoten, passes, duels en dribbels hebben
-een meter met een toon (`facts[].share` en `facts[].tone` uit
+speler toont de wissel als terminalregel en een regel per cijfer
+(label, getal, toelichting; sinds 23 oktober 2026 een compacte lijst);
+bij schoten, passes, duels en dribbels kleurt de toelichting met een toon
+(`facts[].share` en `facts[].tone` uit
 `playerCard`: op doel ≥ 50% sterk, < 34% zwak; passes ≥ 80/< 65%;
 duels en dribbels ≥ 55/< 40%). Minuten staan al in de rij. Een
 speler op het veld linkt naar `#speler-<kant>-<id>`; `scc-match.js`

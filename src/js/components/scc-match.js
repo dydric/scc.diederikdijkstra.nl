@@ -2,11 +2,20 @@
 // Kaarten, balken en rapportcijfers verschijnen als ze in beeld komen.
 import { reveal, still } from '../modules/scc/effects.js';
 import { turf } from '../modules/scc/turf.js';
+import { stand } from '../modules/scc/stand.js';
+import { sides } from '../modules/scc/sides.js';
 
 reveal();
 
 // Het voetbalveld onder het bord (css/components/scc-turf.css).
 turf(document.querySelectorAll('[data-turf]'));
+
+// Het Kooi achter het bord en het publiek ernaast; de uitslag en thuis of
+// uit staan op de lagen zelf.
+const crowd = document.querySelector('[data-stand]');
+if (crowd) stand(crowd, document.querySelector('.scc-hero'), { result: crowd.dataset.result });
+const margins = document.querySelector('[data-sides]');
+if (margins) sides(margins, margins.closest('.scc-workspace'), { venue: margins.dataset.venue });
 
 // Twee vaste rijen. Schuif botsende symbolen binnen hun eigen rij en
 // teken de verbinding vanaf de echte minuut; bij verschuiving loopt die

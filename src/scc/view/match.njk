@@ -19,6 +19,11 @@ edges: false
 {% set data = wedstrijd.data %}
 {% set around = collections.scc | sccNeighbors(wedstrijd) %}
 <main class="scc-workspace scc-match">
+	{#- Altijd het Kooi achter logo en bord; de uitslag kleurt de stemming
+	    (js/modules/scc/stand.js). Ernaast publiek en rook, bij uit achter
+	    de hekken van het uitvak (sides.js). #}
+	<div class="scc-stand" data-stand data-result="{{ story.result }}" aria-hidden="true"></div>
+	<div class="scc-sides" data-sides data-venue="{{ story.side }}" aria-hidden="true"></div>
 	{{ siteHeader() }}
 
 	{# De hero: het vertrekbord met de uitslag en de gegevens, het korte

@@ -24,6 +24,77 @@
 
   /* ── Overzicht (/) ─────────────────────────────────────────────── */
 
+  /* Het Kooi Stadion: de noordtribune achter logo en hero, over de volle
+     schermbreedte (js/modules/scc/stand.js tekent publiek, dak, hoeken en
+     lichtmasten). Naar onderen loopt hij weg in de pagina. Het licht volgt het
+     veld in de hero: data-light op .scc-upcoming-main. */
+  :is(.scc-archive, .scc-match) { @apply relative isolate; }
+  .scc-stand {
+    @apply pointer-events-none absolute top-0 -z-1 h-[720px] sm:h-[800px];
+    left: calc(50% - 50vw);
+    width: 100vw;
+    mask-image: linear-gradient(#000 45%, transparent);
+    /* Nachtlucht boven het veld, met het schijnsel van de lampen en de
+       hero; zonder JS staat alleen deze gloed. */
+    background:
+      radial-gradient(50% 42% at 50% 30%, rgb(255 240 205 / 0.07), transparent),
+      linear-gradient(color-mix(in oklab, var(--scc-blue) 12%, var(--page-bg)), var(--page-bg));
+  }
+  :is(.scc-archive, .scc-match):has([data-light="middag"]) .scc-stand {
+    background: linear-gradient(color-mix(in oklab, #8fa3c0 9%, var(--page-bg)), var(--page-bg));
+  }
+  /* Het logo ligt midden over dakrand en bovenring (het dak eindigt op
+     88px); de hero sluit direct aan op de voorste rij (--stand-front, gezet
+     door stand.js; de terugvalwaarde is de maat op een breed scherm). */
+  :is(.scc-archive, .scc-match):has(> .scc-stand) > .scc-site-header {
+    @apply items-start pt-14 pb-0 sm:pt-12;
+    height: var(--stand-front, 180px);
+    img { filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0.7)); }
+  }
+  .scc-stand-canvas {
+    @apply absolute inset-0 size-full opacity-0;
+    transition: opacity 600ms ease-out;
+    &[data-ready] { @apply opacity-100; }
+  }
+  /* De tribune onscherp, zoals de achtergrond van een foto; het licht en
+     de masten erboven scherp en opgeteld. */
+  .scc-stand-canvas[data-layer="back"] { filter: blur(1.6px); @variant sm { filter: blur(2.2px); } }
+  .scc-stand-canvas[data-layer="light"] { mix-blend-mode: screen; }
+  /* Rook en vlaggen naast de pagina: vast achter alles, onscherp, en
+     alleen buiten de inhoud zichtbaar (--sides-left en --sides-right zet
+     sides.js); bovenin vervaagt de laag onder de tribune. */
+  .scc-sides {
+    @apply pointer-events-none fixed inset-0 -z-2;
+    mask-image:
+      linear-gradient(90deg, #000 calc(var(--sides-left, 0px) - 48px), transparent var(--sides-left, 0px), transparent var(--sides-right, 100%), #000 calc(var(--sides-right, 100%) + 48px)),
+      linear-gradient(transparent, #000 40%);
+    mask-composite: intersect;
+  }
+  .scc-sides-canvas {
+    @apply absolute inset-0 size-full opacity-0;
+    transition: opacity 600ms ease-out;
+    &[data-ready] { @apply opacity-100; }
+  }
+  /* Het publiek ver onscherp, de rook nog zachter. */
+  .scc-sides-canvas[data-layer="crowd"] { filter: blur(4px); }
+  .scc-sides-canvas[data-layer="smoke"] { filter: blur(10px); }
+  /* Een telefoon die flitst: kort wit, met een zachte gloed. */
+  .scc-stand-flash {
+    @apply absolute top-0 left-0 size-[3px] rounded-full;
+    background: #fff;
+    box-shadow: 0 0 6px 2px rgb(255 255 255 / 0.5);
+    animation: scc-stand-flash 420ms ease-out both;
+  }
+  @keyframes scc-stand-flash {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scc-stand-canvas { transition: none; }
+    .scc-stand-flash { display: none; }
+  }
+
   /* Het programma: een donker voorbeschouwingspaneel met de bestaande
      aftelklok; de wedstrijden daarna vormen een strook onder het paneel. */
   .scc-upcoming {
@@ -31,6 +102,10 @@
     border-radius: var(--radius);
     background: var(--surface);
     box-shadow: 0 0 0 1px var(--line), var(--panel-shadow);
+  }
+  /* 's Avonds straalt het veld een warme gloed uit over de tribune. */
+  :is(.scc-upcoming, .scc-hero):has([data-light="avond"]) {
+    box-shadow: 0 0 0 1px var(--line), var(--panel-shadow), 0 -32px 120px -24px rgb(255 236 190 / 0.16);
   }
 
   .scc-upcoming-main {
@@ -51,7 +126,8 @@
   .scc-upcoming-context { @apply ms-auto; color: rgb(255 255 255 / 0.6); }
 
   .scc-upcoming-stage[hidden], .scc-upcoming-empty[hidden], .scc-upcoming-countdown[hidden] { @apply hidden; }
-  .scc-upcoming-stage { @apply grid gap-5 sm:gap-8 sm:py-4 md:py-8; }
+  /* Alleen ruimte onder: de wedstrijd staat zo dicht onder de terminalregel. */
+  .scc-upcoming-stage { @apply grid gap-5 sm:gap-8 sm:pb-4 md:pb-8; }
 
   /* Zelfde opzet als het detailbord: thuis rechts, uit links, met het
      scorestreepje op naamhoogte ertussen. Onder 640px gecentreerd onder
